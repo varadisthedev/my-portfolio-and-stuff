@@ -1,0 +1,140 @@
+"use client";
+
+import axios from "axios";
+import { Send } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { contactContent } from "@/lib/site";
+import { cn } from "@/lib/utils";
+
+const fieldClassName = cn(
+  "h-11 rounded-lg border-outline-variant bg-[#050505] px-3 font-body-md text-foreground",
+  "placeholder:text-muted-foreground/60",
+  "focus-visible:border-secondary focus-visible:ring-secondary/30"
+);
+
+const labelClassName = "font-code-label uppercase text-muted-foreground";
+
+export function ContactForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setStatusMessage(null);
+
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const name = data.get("name")?.toString() ?? "";
+    const email = data.get("email")?.toString() ?? "";
+    const subject = data.get("subject")?.toString() ?? "";
+    const message = data.get("message")?.toString() ?? "";
+
+    try {
+      const response = await axios.post<{ success?: boolean; message?: string }>(
+        "/api/contact",
+        { name, email, subject, message }
+      );
+
+      if (!response.data?.success) {
+        throw new Error("Failed to send message");
+      }
+
+      form.reset();
+      setStatusMessage(response.data.message ?? "Message sent successfully.");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const apiError =
+          (error.response?.data as { error?: string } | undefined)?.error ??
+          "Unable to send message right now. Please try again.";
+        setStatusMessage(apiError);
+      } else {
+        setStatusMessage("Unable to send message right now. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <Card className="border-outline-variant bg-surface-container-low p-6 ring-0 md:p-8">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="name" className={labelClassName}>
+              Name
+            </Label>
+            <Input
+              id="name"
+              name="name"
+              required
+              placeholder="Your name"
+              className={fieldClassName}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="email" className={labelClassName}>
+              Email
+            </Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              required
+              placeholder="you@example.com"
+              className={fieldClassName}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="subject" className={labelClassName}>
+            Subject
+          </Label>
+          <Input
+            id="subject"
+            name="subject"
+            required
+            placeholder="What's this about?"
+            className={fieldClassName}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="message" className={labelClassName}>
+            Message
+          </Label>
+          <Textarea
+            id="message"
+            name="message"
+            required
+            rows={6}
+            placeholder="Tell me about your project..."
+            className={cn(fieldClassName, "min-h-40 resize-y py-3")}
+          />
+        </div>
+
+        <Button
+          type="submit"
+          size="lg"
+          disabled={isSubmitting}
+          className="h-auto w-full gap-2 py-4 font-code-label uppercase hover:shadow-[0_0_20px_rgba(192,193,255,0.4)]"
+        >
+          {isSubmitting ? "Sending..." : contactContent.form.submitLabel}
+          <Send className="size-4" />
+        </Button>
+
+        {statusMessage ? (
+          <p className="font-body-md text-sm text-muted-foreground">
+            {statusMessage}
+          </p>
+        ) : null}
+      </form>
+    </Card>
+  );
+}
