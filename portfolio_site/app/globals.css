@@ -154,3 +154,38 @@
     line-height: 1.2;
   }
 }
+
+
+
+/* scrollbar  */
+/* ==========================================
+   Premium Portfolio Scrollbar
+========================================== */
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) var(--surface);
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(192, 193, 255, 0.35);
+  backdrop-filter: blur(10px);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(192, 193, 255, 0.6);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--surface);
+} 
