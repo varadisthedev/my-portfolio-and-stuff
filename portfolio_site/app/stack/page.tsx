@@ -1,16 +1,25 @@
 import { Container } from "@/components/layout/Container";
-import { TechLogoMarquee } from "@/components/home/TechLogoMarquee";
+import { StackGrid } from "@/components/stack/StackGrid";
+
 export default function StackPage() {
   return (
     <>
-      <Container className="py-(--spacing-stack-lg) pt-32">
-        <h1 className="font-headline-lg text-foreground">Stack</h1>
-        <p className="mt-4 max-w-2xl font-body-lg text-muted-foreground">
-          Technologies and tools — coming soon.
-        </p>
-
+      <Container className="pt-32 pb-4">
+        {/* Page heading */}
+        <div className="flex flex-col gap-4 max-w-2xl">
+          <h1 className="font-headline-lg text-foreground">Stack</h1>
+          <p className="font-body-lg text-muted-foreground">
+            Every tool I reach for — and why it earns its place in the
+            workflow.
+          </p>
+        </div>
       </Container>
-      <TechLogoMarquee />
+
+      <Container className="py-(--spacing-stack-lg)">
+        <StackGrid />
+      </Container>
+
+
     </>
   );
 }

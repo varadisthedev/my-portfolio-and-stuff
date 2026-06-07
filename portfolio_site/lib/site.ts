@@ -53,25 +53,23 @@ export const contactContent = {
 } as const;
 
 export const featuredHighlights = {
-  title: "Featured Highlights",
+  title: "Featured work",
   architecture: {
-    label: "SYSTEMS ARCHITECTURE",
-    title:
-      "Building resilient microservices and seamless data pipelines for enterprise-scale applications.",
-    skills: ["TYPESCRIPT", "NODE.JS", "GRAPHQL", "POSTGRES"],
+    label: "Architecture",
+    title: "Event-driven systems & scalable backends",
+    skills: ["Redis", "Socket.io", "Docker", "TypeScript"],
   },
   metric: {
-    value: "99.9%",
-    label: "Uptime Achieved",
+    value: "500+",
+    label: "Concurrent users",
   },
   project: {
-    label: "LATEST DEPLOYMENT",
-    title: "FinTech Data Visualizer",
-    description:
-      "Real-time market analysis tool processing millions of data points with sub-second latency.",
     image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDS5N2z8k654kcH3pzFeYwjbqL-IsEWoTBsZIbI9KCYL1MByBHO1hQf1hRnySKxf-C1dV-awz2rwUDQPoZACOfePYwDE6w4TGIprdz-FyHdoYq-zjN-5ZnxmMCCCNjOOhNQQCSiZ6Jh2eJNof8FMPWId5G2bt1nz5a46smU6XfrtWbFB9PUPlNjDI1cXpO--Y6JwLJEDCLICgGLh6TFRxHWls10og4c22t4HH9smMGiSVsDGV_-GZmOpyWlSNJ3Y5Cl5NUubKx7f_Y",
-    imageAlt:
-      "FinTech dashboard with dark mode interface and data visualization charts",
+      "https://res.cloudinary.com/dbo6csymr/image/upload/v1778500117/peafowl_placeholder.png",
+    imageAlt: "Peafowl project screenshot",
+    label: "Selected project",
+    title: "Peafowl",
+    description:
+      "Scalable real-time chat platform using Redis Pub/Sub, Socket.io, and JWT-based security.",
   },
 } as const;
