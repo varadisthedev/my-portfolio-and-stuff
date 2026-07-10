@@ -51,9 +51,7 @@ export const stackCategories: StackCategory[] = [
       { name: "Express.js", icon: "SiExpress" },
       { name: "REST APIs", icon: "SiOpenapiinitiative" },
       { name: "JWT Auth", icon: "SiJsonwebtokens" },
-      { name: "WebSockets", icon: "SiSocketdotio" },
       { name: "Socket.IO", icon: "SiSocketdotio" },
-
     ],
   },
   {

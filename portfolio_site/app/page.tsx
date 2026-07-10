@@ -1,4 +1,5 @@
 import { HeroSection } from "@/components/home/HeroSection";
+import { FeaturedHighlights } from "@/components/home/FeaturedHighlights";
 import ProjectsPage from "@/app/projects/page";
 import StackPage from "@/app/stack/page";
 import AchievementsPage from "@/app/achievements/page";
@@ -9,6 +10,8 @@ export default function HomePage() {
   return (
     <div>
       <HeroSection />
+
+      <FeaturedHighlights />
 
       <section id="projects" className="scroll-mt-32 py-(--spacing-stack-lg)">
         <ProjectsPage />

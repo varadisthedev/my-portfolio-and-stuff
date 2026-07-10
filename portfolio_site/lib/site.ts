@@ -8,7 +8,7 @@ export const site = {
   title: "Varad Raut - Full Stack Developer",
   description:
     "Full stack developer specializing in high-performance digital ecosystems.",
-  copyright: "© 2024 Varad Raut. Engineered with precision.",
+  copyright: "© 2025 Varad Raut. Engineered with precision.",
   cvUrl: "/cv.pdf",
 } as const;
 
@@ -24,7 +24,7 @@ export const heroContent = {
   headline: ["Full Stack Developer.", "Problem Solver.", "Architect."],
   subheadline:
     "I engineer high-performance digital ecosystems. Specializing in robust scalable backends and precise, minimalist front-end interfaces that bridge complex logic with elegant user experiences.",
-  primaryCta: { label: "View My Work", href: "#work" },
+  primaryCta: { label: "View My Work", href: "#projects" },
   secondaryCta: { label: "Explore Stack", href: "#stack" },
 } as const;
 

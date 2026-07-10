@@ -19,6 +19,6 @@ export const mainNav: NavItem[] = [
   { label: "Projects", href: routes.projects },
   { label: "Stack", href: routes.stack },
   { label: "Achievements", href: routes.achievements },
-  { label: "Contact", href: routes.contact },
   { label: "Open Source", href: routes.openSource },
+  { label: "Contact", href: routes.contact },
 ];
