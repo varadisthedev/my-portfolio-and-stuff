@@ -1,53 +1,76 @@
+import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
+import { getDashboardData } from "@/lib/dashboard";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { OverallBanner } from "@/components/status/overall-banner";
+import { StatTile } from "@/components/status/stat-tile";
+import { DomainCard } from "@/components/status/domain-card";
+import { AutoRefresh } from "@/components/status/auto-refresh";
 
-import { checkHealth } from "../lib/healthchecker";
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const services = await checkHealth();
-  const healthyCount = services.filter((service) => service.status === "healthy").length;
+  const { domains, overall } = await getDashboardData();
 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-12 text-slate-100">
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
-        <header className="space-y-2">
-          <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Global Status</p>
-          <h1 className="text-3xl font-semibold">Service health check</h1>
-          {/* <p className="text-slate-400">
-            {healthyCount} of {services.length} services are healthy.
-          </p> */}
+    <main className="min-h-screen">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-10">
+        <header className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.25em] text-ink-muted">Global Status</p>
+            <h1 className="mt-1 text-2xl font-semibold text-ink">Service Health</h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <AutoRefresh />
+            <ThemeToggle />
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-1.5 rounded-full border border-hairline px-3 py-1.5 text-xs font-medium text-ink-secondary hover:text-ink"
+            >
+              <ShieldCheck size={13} />
+              Admin
+            </Link>
+          </div>
         </header>
 
-        <section className="grid gap-3">
-          {services.map((service) => (
-            <div
-              key={service.name}
-              className="flex items-center justify-between rounded-sm border border-slate-800 bg-slate-900/70 px-4 py-3 hover:bg-slate-200/10"
-            >
-              <div>
-                <p className="font-medium">{service.name}</p>
-                <p className="text-sm text-slate-400">{service.url || "No URL provided"}</p>
+        <OverallBanner upCount={overall.upCount} downCount={overall.downCount} totalCount={overall.totalCount} />
 
-              </div>
-              <div className="flex flex-col items-center">
-
-                <span
-                  className={
-                    service.status === "healthy" ? "rounded-sm bg-emerald-500/15 px-3 py-1 text-sm text-emerald-500"
-                      : service.status === "missing_url"
-                        ? "rounded-sm bg-amber-500/15 px-3 py-1 text-sm text-amber-500"
-                        : service.status === "unhealthy"
-                          ? "rounded-sm bg-rose-500/15 px-3 py-1 text-sm text-rose-600"
-                          : "rounded-sm bg-slate-500/15 px-3 py-1 text-sm text-slate-500"
-                  }
-                >
-                  {service.status}
-                </span>
-                <span className={service.latency >= 0 ? "text-xs text-emerald-400" : "text-xs text-rose-500"}>
-                  latency: {service.latency} ms
-                </span>
-              </div>
-            </div>
-          ))}
+        <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatTile
+            label="Uptime (30d)"
+            value={overall.uptime30d != null ? `${overall.uptime30d.toFixed(2)}%` : "—"}
+            tone={overall.uptime30d != null && overall.uptime30d < 99 ? "critical" : "good"}
+          />
+          <StatTile label="Avg latency (24h)" value={overall.avgLatencyMs != null ? `${overall.avgLatencyMs} ms` : "—"} />
+          <StatTile
+            label="Services up"
+            value={`${overall.upCount}/${overall.totalCount}`}
+            tone={overall.downCount > 0 ? "critical" : "good"}
+          />
+          <StatTile
+            label="Incidents (24h)"
+            value={String(overall.incidents24h)}
+            tone={overall.incidents24h > 0 ? "critical" : "good"}
+          />
         </section>
+
+        <section className="grid gap-4">
+          {domains.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-hairline px-5 py-10 text-center text-sm text-ink-muted">
+              No services configured yet. Sign in to the{" "}
+              <Link href="/admin" className="text-accent hover:underline">
+                admin dashboard
+              </Link>{" "}
+              to add one.
+            </div>
+          ) : (
+            domains.map((domain) => <DomainCard key={domain.id} domain={domain} />)
+          )}
+        </section>
+
+        <footer className="pb-4 text-center text-xs text-ink-muted">
+          Checks run on a schedule and refresh here automatically.
+        </footer>
       </div>
     </main>
   );
