@@ -1,59 +1,81 @@
 import Link from "next/link";
-import { ArrowDown } from "lucide-react";
-import { DotGridBackground } from "@/components/home/DotGridBackground";
+import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/button";
-import { heroContent } from "@/lib/site";
-import Counter from '@/components/ReactBits/Counter';
-
-
+import { PixelCat } from "@/components/ui/PixelCat";
+import { heroContent, site } from "@/lib/site";
 
 export function HeroSection() {
   return (
-    <section id="home" className="relative isolate flex min-h-screen items-center overflow-hidden bg-background pt-[100px] scroll-mt-32">
-      <DotGridBackground />
-      <div className="pointer-events-none absolute top-1/4 left-1/4 z-0 size-96 rounded-full bg-primary/5 blur-[120px]" />
+    <section
+      id="home"
+      className="relative isolate flex min-h-screen items-center overflow-hidden pt-[100px] scroll-mt-32"
+    >
+      {/* The grid itself is a single sitewide instance (see app/layout.tsx) so
+      there's only ever one canvas behind the page, not a hero-local one
+      double-painted under the sitewide one. Vignette: keeps the grid loud at
+      the edges while staying out of the way of the text column, instead of
+      dimming the whole thing uniformly. Sized wide enough to fully cover the
+      longest paragraph line rather than moving the text further left to
+      chase it — the left padding here is already as tight as it can be
+      without colliding with DomainSlider, so widening the dark patch was
+      the safer fix. */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 78% 90% at 20% 50%, var(--background) 45%, transparent 80%)",
+        }}
+        aria-hidden
+      />
 
-      <Container className="relative z-10 mx-auto flex w-full max-w-[900px] flex-col gap-(--spacing-stack-md) pt-(--spacing-stack-lg)">
-        <div className="flex w-max items-center gap-2 rounded-full border border-secondary/20 bg-secondary/5 px-3 py-1 font-code-label text-secondary">
-          <span className="size-2 animate-pulse rounded-full bg-secondary" />
-          {heroContent.availability}
-        </div>
+      {/* Left padding clears DomainSlider (fixed, vertically centered,
+      `left-4 md:left-6` + a ~48px-wide pill), but only just — pulled in as
+      close as that allows so the text sits inside the vignette's dark patch
+      (centered at 20% above) rather than drifting past it. */}
+      <Container className="relative z-10 grid w-full grid-cols-1 gap-(--spacing-stack-lg) py-(--spacing-stack-lg) pr-(--spacing-margin-mobile) pl-16 md:pr-(--spacing-margin-desktop) md:pl-20">
+        <div className="flex min-w-0 max-w-3xl flex-col gap-(--spacing-stack-md)">
+          <div className="flex flex-wrap items-center gap-4">
+            <p className="font-code-label text-primary">{heroContent.eyebrow}</p>
 
-        <h1 className="font-headline-xl tracking-tighter text-foreground">
-          {heroContent.headline[0]}
-          <br />
-          <span className="text-muted-foreground">
-            {heroContent.headline[1]} {heroContent.headline[2]}
-          </span>
-        </h1>
+          </div>
 
-        <p className="max-w-[600px] font-body-lg text-muted-foreground">
-          {heroContent.subheadline}
-        </p>
+          <h1 className="font-heading text-[clamp(2.4rem,9vw,6.5rem)] leading-[0.95] font-extrabold tracking-tighter text-foreground uppercase">
+            {site.name}
+          </h1>
 
-        <div className="mt-2 flex flex-col gap-4 pt-2 sm:flex-row">
-          <Button
-            asChild
-            size="lg"
-            className="h-auto px-8 py-4 font-code-label uppercase hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(192,193,255,0.4)]"
-          >
-            <Link href={heroContent.primaryCta.href}>
-              {heroContent.primaryCta.label}
-              <ArrowDown className="size-[18px]" />
-            </Link>
-          </Button>
+          <p className="max-w-[720px] font-headline-md text-muted-foreground">
+            <span className="text-primary">{heroContent.headlineHighlight}</span>{" "}
+            {heroContent.headline}
+          </p>
 
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-            className="h-auto border-outline-variant bg-surface-container-low/50 px-8 py-4 font-code-label uppercase text-foreground hover:border-primary"
-          >
-            <Link href={heroContent.secondaryCta.href}>
-              {heroContent.secondaryCta.label}
-            </Link>
-          </Button>
+          <p className="max-w-[600px] font-body-lg text-muted-foreground">
+            {heroContent.subheadline}
+          </p>
+
+          <div className="relative mt-2 flex flex-col gap-4 pt-2 sm:flex-row">
+            {/* Perched on top of the primary button's border. */}
+            <PixelCat size={2} delay={1.2} className="-top-5 left-2" catColor="#22c55e" catEyeColor="#000000" />
+
+            <Button asChild size="lg" className="h-auto px-8 py-4 font-code-label uppercase">
+              <Link href={heroContent.primaryCta.href}>
+                {heroContent.primaryCta.label}
+                <ArrowDown className="size-[18px]" />
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="h-auto border-outline-variant bg-transparent px-8 py-4 font-code-label uppercase text-foreground hover:border-primary"
+            >
+              <Link href={heroContent.secondaryCta.href}>
+                {heroContent.secondaryCta.label}
+                <ArrowUpRight className="size-[18px]" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </Container>
     </section>

@@ -67,25 +67,32 @@
   --card-foreground: #e5e2e1;
   --popover: #201f1f;
   --popover-foreground: #e5e2e1;
-  --primary: #c0c1ff;
-  --primary-foreground: #1000a9;
-  --secondary: #4cd7f6;
-  --secondary-foreground: #003640;
+  /* Brand: GitHub green + silver — no blue/violet anywhere in the palette.
+     Green matches react-github-calendar's own dark-mode scale exactly
+     (see GithubGridBackground), so the contribution chart and every accent
+     usage of --primary read as one deliberate color, not a coincidence. */
+  --primary: #3fb950;
+  --primary-foreground: #04170a;
+  --secondary: #c9d1d9;
+  --secondary-foreground: #1c2128;
   --muted: #1c1b1b;
-  --muted-foreground: #c7c4d7;
+  --muted-foreground: #a7afae;
   --accent: #2a2a2a;
   --accent-foreground: #e5e2e1;
   --destructive: #ffb4ab;
-  --border: #464554;
+  --border: #3a413c;
   --input: #0e0e0e;
-  --ring: #4cd7f6;
+  --ring: #3fb950;
   --tertiary: #ffb783;
   --surface: #131313;
   --surface-container-low: #1c1b1b;
   --surface-container: #201f1f;
   --surface-container-highest: #353534;
-  --outline-variant: #464554;
-  --radius: 0.5rem;
+  --outline-variant: #3a413c;
+  /* Sharp corners throughout — every `rounded-{sm,md,lg,xl,2xl,3xl,4xl}` utility
+     derives from this single value via the @theme block above. `rounded-full`
+     (pills/dots/avatars) is a fixed token and is unaffected on purpose. */
+  --radius: 0px;
 }
 
 @layer base {
@@ -177,15 +184,71 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(192, 193, 255, 0.35);
+  background: rgba(63, 185, 80, 0.35);
   backdrop-filter: blur(10px);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(192, 193, 255, 0.6);
+  background: rgba(63, 185, 80, 0.6);
 }
 
 ::-webkit-scrollbar-corner {
   background: var(--surface);
-} 
+}
+
+/* ==========================================
+   Custom cursor — see components/layout/CustomCursor.tsx.
+   Only applied once that component confirms a fine/hover-capable pointer,
+   so touch devices never have their native cursor behavior touched.
+========================================== */
+
+.custom-cursor-active,
+.custom-cursor-active * {
+  cursor: none !important;
+}
+
+.custom-cursor-dot,
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition:
+    opacity 0.2s ease,
+    width 0.15s ease,
+    height 0.15s ease,
+    margin 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.custom-cursor-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: var(--primary);
+}
+
+.custom-cursor-ring {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border: 1.5px solid var(--primary);
+  background: transparent;
+}
+
+.custom-cursor-ring--hover {
+  width: 46px;
+  height: 46px;
+  margin: -23px 0 0 -23px;
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  border-color: var(--primary);
+}
+
+.custom-cursor-ring--down {
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+}

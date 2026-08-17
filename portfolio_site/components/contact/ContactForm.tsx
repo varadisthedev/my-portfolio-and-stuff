@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { Send } from "lucide-react";
+import { Send, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -106,15 +106,28 @@ export function ContactForm() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="message" className={labelClassName}>
-            Message
-          </Label>
+          <div className="flex items-center justify-between gap-3">
+            <Label htmlFor="message" className={labelClassName}>
+              Message
+            </Label>
+            <button
+              type="button"
+              onClick={() => {
+                // No-op for now — will send the current message to an LLM
+                // to clean up phrasing/grammar without changing its tone.
+              }}
+              className="flex items-center gap-1.5 border border-outline-variant/60 px-2 py-1 font-code-label text-[11px] text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              <Sparkles className="size-3" />
+              AI
+            </button>
+          </div>
           <Textarea
             id="message"
             name="message"
             required
             rows={6}
-            placeholder="Tell me about your project..."
+            placeholder="Keep it brief or rough — tap AI above to clean up the wording without changing your tone."
             className={cn(fieldClassName, "min-h-40 resize-y py-3")}
           />
         </div>
@@ -123,7 +136,7 @@ export function ContactForm() {
           type="submit"
           size="lg"
           disabled={isSubmitting}
-          className="h-auto w-full gap-2 py-4 font-code-label uppercase hover:shadow-[0_0_20px_rgba(192,193,255,0.4)]"
+          className="h-auto w-full gap-2 py-4 font-code-label uppercase hover:shadow-[0_0_20px_rgba(63,185,80,0.4)]"
         >
           {isSubmitting ? "Sending..." : contactContent.form.submitLabel}
           <Send className="size-4" />

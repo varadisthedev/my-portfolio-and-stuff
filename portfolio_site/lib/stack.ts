@@ -1,7 +1,6 @@
 // ─── Stack Data ────────────────────────────────────────────────────────────────
-// Edit this file to update the /stack page. Each category has a label, a short
-// description, and a list of tech items. The `proof` array at the bottom drives
-// the "Visual Proof" cards.
+// Edit this file to update the tech stack section. Each category has a label,
+// a short description, and a list of tech items.
 
 export type TechItem = {
   /** Display name */
@@ -15,13 +14,6 @@ export type StackCategory = {
   label: string;
   description: string;
   items: TechItem[];
-};
-
-export type ProofItem = {
-  tech: string;
-  /** Short icon identifier matching a TechItem.icon value */
-  icon: string;
-  detail: string;
 };
 
 export const stackCategories: StackCategory[] = [
@@ -79,28 +71,5 @@ export const stackCategories: StackCategory[] = [
       { name: "Vercel", icon: "SiVercel" },
       { name: "VS Code", icon: "SiTerminal" },
     ],
-  },
-];
-
-export const visualProof: ProofItem[] = [
-  {
-    tech: "Next.js",
-    icon: "SiNextdotjs",
-    detail: "Used in portfolio and SaaS projects",
-  },
-  {
-    tech: "Redis",
-    icon: "SiRedis",
-    detail: "Pub/Sub and caching for chat systems",
-  },
-  {
-    tech: "Docker",
-    icon: "SiDocker",
-    detail: "Local development and deployment",
-  },
-  {
-    tech: "MongoDB",
-    icon: "SiMongodb",
-    detail: "Schema design and aggregation pipelines",
   },
 ];
