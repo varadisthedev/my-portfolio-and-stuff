@@ -5,6 +5,24 @@ import { useEffect, useRef } from "react";
 const INTERACTIVE_SELECTOR =
   'a, button, input, textarea, select, [role="button"], [role="link"], summary, label';
 
+const getCursorIntent = (el: Element | null) => {
+  if (!el) return "default";
+
+  if (
+    el instanceof HTMLInputElement ||
+    el instanceof HTMLTextAreaElement ||
+    el instanceof HTMLSelectElement
+  ) {
+    return "field";
+  }
+
+  if (el.closest("button, a, [role='button'], [role='link'], summary")) {
+    return "cta";
+  }
+
+  return "default";
+};
+
 /**
  * A themed replacement for the OS pointer: a small solid dot pinned exactly
  * to the cursor position, plus a square (not round — this site has no
@@ -38,8 +56,10 @@ export function CustomCursor() {
     const ringEl = ringRef.current;
     if (!dot || !ringEl) return;
 
-    const setHover = (hovering: boolean) => {
-      ringEl.classList.toggle("custom-cursor-ring--hover", hovering);
+    const setHover = (state: "default" | "field" | "cta") => {
+      ringEl.classList.toggle("custom-cursor-ring--hover", state !== "default");
+      ringEl.classList.toggle("custom-cursor-ring--field", state === "field");
+      ringEl.classList.toggle("custom-cursor-ring--cta", state === "cta");
     };
 
     const onMove = (e: MouseEvent) => {
@@ -49,8 +69,23 @@ export function CustomCursor() {
         ring.current = target.current;
         ringEl.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
       }
+
       const el = e.target instanceof Element ? e.target : null;
-      setHover(!!el?.closest(INTERACTIVE_SELECTOR));
+      const state = getCursorIntent(el?.closest(INTERACTIVE_SELECTOR) ?? null);
+      setHover(state);
+
+      if (state === "field") {
+        const rect = (el as HTMLElement | null)?.getBoundingClientRect?.();
+        if (rect) {
+          const width = Math.max(rect.width + 16, 42);
+          const height = Math.max(rect.height + 16, 32);
+          ringEl.style.setProperty("--cursor-ring-width", `${width}px`);
+          ringEl.style.setProperty("--cursor-ring-height", `${height}px`);
+        }
+      } else {
+        ringEl.style.removeProperty("--cursor-ring-width");
+        ringEl.style.removeProperty("--cursor-ring-height");
+      }
     };
 
     const onDown = () => ringEl.classList.add("custom-cursor-ring--down");

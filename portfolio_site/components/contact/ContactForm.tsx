@@ -12,9 +12,9 @@ import { contactContent } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const fieldClassName = cn(
-  "h-11 rounded-lg border-outline-variant bg-[#050505] px-3 font-body-md text-foreground",
+  "h-11 rounded-lg border-outline-variant bg-[#050505] px-3 font-body-md text-foreground transition-all duration-200",
   "placeholder:text-muted-foreground/60",
-  "focus-visible:border-secondary focus-visible:ring-secondary/30"
+  "focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:shadow-[0_0_0_1px_rgba(63,185,80,0.25)]"
 );
 
 const labelClassName = "font-code-label uppercase text-muted-foreground";

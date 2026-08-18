@@ -235,9 +235,11 @@ html {
 }
 
 .custom-cursor-ring {
-  width: 30px;
-  height: 30px;
-  margin: -15px 0 0 -15px;
+  --cursor-ring-width: 30px;
+  --cursor-ring-height: 30px;
+  width: var(--cursor-ring-width);
+  height: var(--cursor-ring-height);
+  margin: calc(var(--cursor-ring-height) / -2) 0 0 calc(var(--cursor-ring-width) / -2);
   border: 1.5px solid var(--primary);
   background: transparent;
 }
@@ -248,6 +250,29 @@ html {
   margin: -23px 0 0 -23px;
   background: color-mix(in srgb, var(--primary) 14%, transparent);
   border-color: var(--primary);
+}
+
+.custom-cursor-ring--field {
+  width: var(--cursor-ring-width);
+  height: var(--cursor-ring-height);
+  margin: calc(var(--cursor-ring-height) / -2) 0 0 calc(var(--cursor-ring-width) / -2);
+  border-radius: 10px;
+  border-color: var(--primary);
+  background: rgba(63, 185, 80, 0.06);
+  box-shadow: 0 0 0 1px rgba(63, 185, 80, 0.25), 0 0 18px rgba(63, 185, 80, 0.22);
+}
+
+.custom-cursor-ring--cta {
+  width: 48px;
+  height: 48px;
+  margin: -24px 0 0 -24px;
+  border-radius: 12px;
+  border-color: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 0 18px rgba(255, 255, 255, 0.86),
+    0 0 34px rgba(255, 255, 255, 0.38);
 }
 
 .custom-cursor-ring--down {

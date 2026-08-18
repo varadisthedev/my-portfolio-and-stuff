@@ -9,7 +9,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
-import { DialogBubble } from "@/components/ui/DialogBubble";
+import { DialogBubble, type DialogDirection } from "@/components/ui/DialogBubble";
 
 // Hand-drawn, verified as ASCII before being ported here (each row printed
 // and eyeballed for ears/head/tail proportions) — 'X' body, 'o' tail,
@@ -123,9 +123,10 @@ type PixelCatProps = {
   catHeartColor?: string;
   catNoseColor?: string;
   catMouthColor?: string;
-  /** Speech-bubble text, positioned above and to the left of the cat.
-   * Bubble only renders when this is set. */
+  /** Speech-bubble text. Bubble only renders when this is set. */
   text?: string;
+  /** Which side of the cat the bubble (and its thought-trail) sits on. */
+  dialogDirection?: DialogDirection;
 };
 
 /** A tiny pixel-art white cat, single-div box-shadow technique (one real
@@ -137,7 +138,7 @@ type PixelCatProps = {
  * timer and, when `patrol` is set, paces back and forth. Purely decorative
  * (`aria-hidden`), meant to be absolutely positioned by a `relative`
  * parent. */
-export function PixelCat({ size = 2, className, patrol = 0, delay = 0, catColor = "#f5f4f2", catEyeColor = "#000000", catMouthColor = "#f9a8d4", catOutlineColor = "#d4d4d4", catHeartColor = "#ef4444", catNoseColor = "#f9a8d4", text }: PixelCatProps) {
+export function PixelCat({ size = 2, className, patrol = 0, delay = 0, catColor = "#f5f4f2", catEyeColor = "#000000", catMouthColor = "#f9a8d4", catOutlineColor = "#d4d4d4", catHeartColor = "#ef4444", catNoseColor = "#f9a8d4", text, dialogDirection = "left" }: PixelCatProps) {
   const [blinking, setBlinking] = useState(false);
   const [isPatting, setIsPatting] = useState(false);
   const pattingTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -280,7 +281,7 @@ export function PixelCat({ size = 2, className, patrol = 0, delay = 0, catColor 
 
       </motion.div>
 
-      <DialogBubble text={text} className="bottom-full left-0 mb-4 -translate-x-[55%]" />
+      <DialogBubble text={text} direction={dialogDirection} />
 
       <AnimatePresence>
         {isPatting &&
