@@ -6,7 +6,7 @@ export const site = {
   title: "Varad Raut — Full-Stack Engineer",
   description:
     "Full-stack engineer building real-time systems, AI-assisted tools, and clean web interfaces. Currently at Grovix.",
-  cvUrl: "/cv.pdf",
+  cvUrl: "/varad_raut_fullstack_aug.pdf",
   repoUrl: "https://github.com/varadisthedev/my-portfolio-and-stuff/",
 } as const;
 

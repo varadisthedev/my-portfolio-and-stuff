@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import { Send, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,10 @@ const labelClassName = "font-code-label uppercase text-muted-foreground";
 export function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [enhanceNotice, setEnhanceNotice] = useState<string | null>(null);
+  const [hasMessage, setHasMessage] = useState(false);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -59,6 +63,8 @@ export function ContactForm() {
       }
 
       form.reset();
+      setHasMessage(false);
+      setEnhanceNotice(null);
       setStatusMessage(response.data.message ?? "Message sent successfully.");
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -71,6 +77,43 @@ export function ContactForm() {
       }
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleEnhance() {
+    const textarea = messageRef.current;
+    const message = textarea?.value.trim();
+    if (!textarea || !message || isEnhancing) return;
+
+    setIsEnhancing(true);
+    setEnhanceNotice(null);
+
+    try {
+      const response = await axios.post<{ success?: boolean; message?: string }>(
+        "/api/enhance",
+        { message }
+      );
+
+      if (!response.data?.success || !response.data.message) {
+        throw new Error("Failed to enhance message");
+      }
+
+      // Uncontrolled on purpose (see `messageRef`) — setting `.value`
+      // directly avoids making the whole textarea controlled just for this
+      // one action.
+      textarea.value = response.data.message;
+      textarea.focus();
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const apiError =
+          (error.response?.data as { error?: string } | undefined)?.error ??
+          "Couldn't enhance that right now. Please try again.";
+        setEnhanceNotice(apiError);
+      } else {
+        setEnhanceNotice("Couldn't enhance that right now. Please try again.");
+      }
+    } finally {
+      setIsEnhancing(false);
     }
   }
 
@@ -125,30 +168,33 @@ export function ContactForm() {
             </Label>
             <button
               type="button"
-              onClick={() => {
-                // No-op for now — will send the current message to an LLM
-                // to clean up phrasing/grammar without changing its tone.
-              }}
-              className="flex items-center gap-1.5 border border-outline-variant/60 px-2 py-1 font-code-label text-[11px] text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+              onClick={handleEnhance}
+              disabled={!hasMessage || isEnhancing || isSubmitting}
+              className="flex items-center gap-1.5 border border-outline-variant/60 px-2 py-1 font-code-label text-[11px] text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-outline-variant/60 disabled:hover:text-muted-foreground"
             >
-              <Sparkles className="size-3" />
-              AI
+              <Sparkles className={cn("size-3", isEnhancing && "animate-pulse")} />
+              {isEnhancing ? "Enhancing..." : "AI"}
             </button>
           </div>
           <Textarea
+            ref={messageRef}
             id="message"
             name="message"
             required
             rows={6}
-            placeholder="Keep it brief or rough — tap AI above to clean up the wording without changing your tone."
+            onChange={(e) => setHasMessage(e.target.value.trim().length > 0)}
+            placeholder="Keep it brief or rough.You can also tap on 'AI' above to clean up the wording without changing your tone."
             className={cn(fieldClassName, "min-h-40 resize-y py-3")}
           />
+          {enhanceNotice ? (
+            <p className="font-body-md text-xs text-muted-foreground">{enhanceNotice}</p>
+          ) : null}
         </div>
 
         <Button
           type="submit"
           size="lg"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isEnhancing}
           className="h-auto w-full gap-2 py-4 font-code-label uppercase hover:shadow-[0_0_20px_rgba(63,185,80,0.4)]"
         >
           {isSubmitting ? "Sending..." : contactContent.form.submitLabel}

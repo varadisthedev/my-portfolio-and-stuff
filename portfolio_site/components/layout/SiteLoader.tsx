@@ -6,8 +6,7 @@ import { SITE_LOADED_EVENT } from "@/lib/siteLoaderEvent";
 
 // importing MIN_VISIBLE_MS from .env because it is a constant that can be configured by the user
 const MIN_VISIBLE_MS = parseInt(process.env.MIN_VISIBLE_MS ?? "1800", 10);
-const FADE_MS = 400;
-
+const FADE_MS = 400
 type NetworkInformation = {
   saveData?: boolean;
   effectiveType?: "slow-2g" | "2g" | "3g" | "4g";

@@ -1,6 +1,10 @@
 import { Resend } from "resend";
 import chalk from "chalk";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 const log = console.log;
+
+const RATE_LIMIT = 3;
+const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 if (!process.env.RESEND_API_KEY) {
     log(chalk.red("RESEND_API_KEY is not set in environment variables"));
     throw new Error("RESEND_API_KEY is not set in environment variables");
@@ -23,6 +27,15 @@ type ContactBody = {
 
 export async function POST(req: Request) {
     try {
+        const ip = getClientIp(req);
+        const rate = await checkRateLimit(`contact:${ip}`, RATE_LIMIT, RATE_WINDOW_MS);
+        if (!rate.allowed) {
+            return Response.json(
+                { error: "Too many messages sent recently. Please wait a bit before trying again." },
+                { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } }
+            );
+        }
+
         const body: ContactBody = await req.json();
 
         const { name, email, subject, message } = body;

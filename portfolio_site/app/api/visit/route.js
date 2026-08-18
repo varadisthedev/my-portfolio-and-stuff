@@ -1,3 +1,4 @@
+import "server-only";
 import connectToMongo from "@/lib/connectToMongo.ts";
 import Visitor from "@/models/Visitor";
 
