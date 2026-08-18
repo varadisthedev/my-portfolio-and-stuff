@@ -2,7 +2,7 @@ import github from "../logos/light/github.png";
 import linkedin from "../logos/light/linkedin.png";
 
 export const site = {
-  name: "VARAD_",
+  name: ">VARAD_",
   title: "Varad Raut — Full-Stack Engineer",
   description:
     "Full-stack engineer building real-time systems, AI-assisted tools, and clean web interfaces. Currently at Grovix.",

@@ -53,7 +53,7 @@ export const stackCategories: StackCategory[] = [
       "Managing structured data, caching layers and performance optimization.",
     items: [
       { name: "MongoDB", icon: "SiMongodb" },
-      { name: "Mongoose", icon: "SiMongoose" },
+      { name: "PostgreSQL", icon: "SiPostgresql" },
       { name: "Redis", icon: "SiRedis" },
     ],
   },
@@ -69,7 +69,6 @@ export const stackCategories: StackCategory[] = [
       { name: "Linux", icon: "SiLinux" },
       { name: "Postman", icon: "SiPostman" },
       { name: "Vercel", icon: "SiVercel" },
-      { name: "VS Code", icon: "SiTerminal" },
     ],
   },
 ];

@@ -54,8 +54,6 @@ export function HeroSection() {
           </p>
 
           <div className="relative mt-2 flex flex-col gap-4 pt-2 sm:flex-row">
-            {/* Perched on top of the primary button's border. */}
-            <PixelCat size={2} delay={1.2} className="-top-5 left-2" catColor="#22c55e" catEyeColor="#000000" />
 
             <Button asChild size="lg" className="h-auto px-8 py-4 font-code-label uppercase">
               <Link href={heroContent.primaryCta.href}>
@@ -63,6 +61,7 @@ export function HeroSection() {
                 <ArrowDown className="size-[18px]" />
               </Link>
             </Button>
+
 
             <Button
               asChild
@@ -75,6 +74,8 @@ export function HeroSection() {
                 <ArrowUpRight className="size-[18px]" />
               </Link>
             </Button>
+            {/* <PixelCat size={4} delay={1.2} className="-top-10 left-2" catColor="#0D0D0D" catEyeColor="#FFF" catOutlineColor="#FFF" /> */}
+
           </div>
         </div>
       </Container>
