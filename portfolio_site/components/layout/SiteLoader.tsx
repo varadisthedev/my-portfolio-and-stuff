@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { Loader } from "@/components/layout/Loader";
 import { SITE_LOADED_EVENT } from "@/lib/siteLoaderEvent";
 
-const MIN_VISIBLE_MS = 3500;
+// importing MIN_VISIBLE_MS from .env because it is a constant that can be configured by the user
+const MIN_VISIBLE_MS = parseInt(process.env.MIN_VISIBLE_MS ?? "1800", 10);
 const FADE_MS = 400;
 
 type NetworkInformation = {
