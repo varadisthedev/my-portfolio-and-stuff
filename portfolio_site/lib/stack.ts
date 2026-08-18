@@ -20,8 +20,7 @@ export const stackCategories: StackCategory[] = [
   {
     id: "frontend",
     label: "Frontend",
-    description:
-      "Building responsive, accessible and performant user interfaces.",
+    description: "Responsive, accessible interfaces built to perform.",
     items: [
       { name: "Next.js", icon: "SiNextdotjs" },
       { name: "React", icon: "SiReact" },
@@ -30,38 +29,36 @@ export const stackCategories: StackCategory[] = [
       { name: "Tailwind CSS", icon: "SiTailwindcss" },
       { name: "ShadCN UI", icon: "SiShadcnui" },
       { name: "HTML5", icon: "SiHtml5" },
-      { name: "CSS3", icon: "SiCss" },
     ],
   },
   {
     id: "backend",
     label: "Backend",
-    description:
-      "Designing scalable APIs, authentication systems and real-time applications.",
+    description: "Scalable APIs, auth, and real-time systems.",
     items: [
       { name: "Node.js", icon: "SiNodedotjs" },
       { name: "Express.js", icon: "SiExpress" },
-      { name: "REST APIs", icon: "SiOpenapiinitiative" },
-      { name: "JWT Auth", icon: "SiJsonwebtokens" },
+      { name: "Spring Boot", icon: "SiSpringboot" },
       { name: "Socket.IO", icon: "SiSocketdotio" },
+      { name: "BullMQ", icon: "SiBullmq" },
+      { name: "JWT Auth", icon: "SiJsonwebtokens" },
     ],
   },
   {
     id: "database",
     label: "Database",
-    description:
-      "Managing structured data, caching layers and performance optimization.",
+    description: "Structured data, caching, and query performance.",
     items: [
       { name: "MongoDB", icon: "SiMongodb" },
       { name: "PostgreSQL", icon: "SiPostgresql" },
+      { name: "Prisma", icon: "SiPrisma" },
       { name: "Redis", icon: "SiRedis" },
     ],
   },
   {
     id: "devops",
     label: "Tools & DevOps",
-    description:
-      "Development workflows, deployment pipelines and production tooling.",
+    description: "The workflows and pipelines that ship it all.",
     items: [
       { name: "Git", icon: "SiGit" },
       { name: "GitHub", icon: "SiGithub" },

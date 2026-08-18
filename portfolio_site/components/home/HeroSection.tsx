@@ -24,7 +24,7 @@ export function HeroSection() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 78% 90% at 20% 50%, var(--background) 45%, transparent 80%)",
+            "radial-gradient(ellipse 78% 180% at 20% 50%, var(--background) 45%, transparent 80%)",
         }}
         aria-hidden
       />
@@ -74,7 +74,6 @@ export function HeroSection() {
                 <ArrowUpRight className="size-[18px]" />
               </Link>
             </Button>
-            {/* <PixelCat size={4} delay={1.2} className="-top-10 left-2" catColor="#0D0D0D" catEyeColor="#FFF" catOutlineColor="#FFF" /> */}
 
           </div>
         </div>

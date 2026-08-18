@@ -145,6 +145,9 @@
     line-height: 1.4;
     letter-spacing: 0.05em;
   }
+  .font-pixel {
+    font-family: var(--font-pixel);
+  }
   .grid-texture {
     background-image:
       linear-gradient(to right, #464554 1px, transparent 1px),

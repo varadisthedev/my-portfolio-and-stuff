@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { SITE_LOADED_EVENT } from "@/lib/siteLoaderEvent";
 
 /** GitHub's own dark-mode contribution-graph scale (levels 0–4) — reused
  * verbatim so this background and the real GitHubCalendar in
@@ -15,11 +16,14 @@ const TRAIL_MAX_AGE_MS = 450;
 const TRAIL_MAX_POINTS = 60;
 
 // The grid stays at full density for the first `fadeStart` px of page
-// scroll (≈ the hero's height, so it never visibly thins out while still
-// inside the hero), then linearly fades over the next `fadeDistance` px
-// down to `MIN_FADE` — never fully to zero, so it reads as "continuing,
-// just quieter" rather than cutting off partway down the page.
-const MIN_FADE = 0.1;
+// scroll, then fades over the next `fadeDistance` px down to `MIN_FADE` —
+// never fully to zero, so it reads as "continuing, just quieter" rather
+// than cutting off partway down the page. Both are deliberately short
+// (well under one viewport height, see `updateFadeParams` below): the grid
+// needs to have mostly finished fading out *before* the hero's own bottom
+// border, or that section boundary reads as the grid just continuing on
+// into the next section rather than the hero actually ending.
+const MIN_FADE = 0.075;
 
 type Cell = { level: number; phase: number; speed: number };
 type TrailPoint = { x: number; y: number; t: number };
@@ -80,10 +84,27 @@ export function GithubGridBackground({
   const dimsRef = useRef({ cols: 0, rows: 0 });
   const gridRafRef = useRef<number | null>(null);
   const trailRafRef = useRef<number | null>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const reducedMotionRef = useRef(false);
   const scrollYRef = useRef(0);
   const fadeParamsRef = useRef({ start: 800, distance: 900 });
+  // This canvas covers the entire viewport, so every frame it paints while
+  // the splash (see SiteLoader) is up is guaranteed invisible — waiting for
+  // the loader's fade-out signal before doing any of that work costs nothing
+  // visually and skips several seconds of pointless repaints on every load.
+  // The fallback timeout means a missed/renamed event never leaves the grid
+  // permanently blank.
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (ready) return;
+    const start = () => setReady(true);
+    window.addEventListener(SITE_LOADED_EVENT, start, { once: true });
+    const fallback = window.setTimeout(start, 4200);
+    return () => {
+      window.removeEventListener(SITE_LOADED_EVENT, start);
+      window.clearTimeout(fallback);
+    };
+  }, [ready]);
 
   const buildCells = useCallback((count: number) => {
     const cells: Cell[] = new Array(count);
@@ -249,6 +270,7 @@ export function GithubGridBackground({
   }, [drawTrail]);
 
   useEffect(() => {
+    if (!ready) return;
     const container = containerRef.current;
     if (!container) return;
 
@@ -268,11 +290,20 @@ export function GithubGridBackground({
     ro.observe(container);
 
     const updateFadeParams = () => {
-      // Full density through roughly the hero's own height, then fade out
-      // over about one more viewport's worth of scroll.
+      // Full density for the first 0.4 viewport-heights of scroll (still
+      // reads as "the hero" the whole time), then fades out fast enough to
+      // be almost at MIN_FADE by ~1 viewport-height — right around the
+      // hero's own bottom border, since the hero is `min-h-screen`. Used to
+      // fade over more than a full viewport, which meant the grid was still
+      // near full density well into whatever section came after the hero —
+      // reading as the hero's background bleeding past its own border
+      // rather than the page moving on. Tuned down once already (0.32/0.5,
+      // MIN_FADE 0.04) after which it read as too faint overall — these
+      // numbers keep the seam clean while leaving a bit more grid visible
+      // past it.
       fadeParamsRef.current = {
-        start: window.innerHeight * 0.85,
-        distance: window.innerHeight * 1.1,
+        start: window.innerHeight * 0.4,
+        distance: window.innerHeight * 0.65,
       };
     };
     updateFadeParams();
@@ -318,15 +349,39 @@ export function GithubGridBackground({
     // not a 60fps animation. The trail (when interactive) needs a faster
     // one so it keeps fading out smoothly between pointer moves, but that
     // interval only ever repaints the small trail canvas, not the grid.
-    intervalRef.current = reducedMotionRef.current
-      ? null
-      : setInterval(() => {
-          scheduleGridDraw();
-          if (interactive) scheduleTrailDraw();
-        }, 120);
-    const trailIntervalRef = interactive && !reducedMotionRef.current
-      ? setInterval(scheduleTrailDraw, 40)
-      : null;
+    // Both are paused while the tab is in the background: an unattended
+    // background tab has no business repainting a full-viewport canvas
+    // nobody can see, and browsers only throttle (not fully stop) timers
+    // there anyway.
+    let ambientTimer: ReturnType<typeof setInterval> | null = null;
+    let trailTimer: ReturnType<typeof setInterval> | null = null;
+
+    const startTimers = () => {
+      if (reducedMotionRef.current) return;
+      ambientTimer = setInterval(() => {
+        scheduleGridDraw();
+        if (interactive) scheduleTrailDraw();
+      }, 120);
+      trailTimer = interactive ? setInterval(scheduleTrailDraw, 40) : null;
+    };
+    const stopTimers = () => {
+      if (ambientTimer !== null) clearInterval(ambientTimer);
+      if (trailTimer !== null) clearInterval(trailTimer);
+      ambientTimer = null;
+      trailTimer = null;
+    };
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        stopTimers();
+      } else {
+        startTimers();
+        scheduleGridDraw();
+        scheduleTrailDraw();
+      }
+    };
+
+    if (!document.hidden) startTimers();
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     scheduleGridDraw();
     scheduleTrailDraw();
@@ -340,14 +395,14 @@ export function GithubGridBackground({
       document.documentElement.removeEventListener("mouseleave", onLeave);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
-      if (intervalRef.current !== null) clearInterval(intervalRef.current);
-      if (trailIntervalRef !== null) clearInterval(trailIntervalRef);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      stopTimers();
       cancelAnimationFrame(t1);
       clearTimeout(t2);
       if (gridRafRef.current !== null) cancelAnimationFrame(gridRafRef.current);
       if (trailRafRef.current !== null) cancelAnimationFrame(trailRafRef.current);
     };
-  }, [interactive, fadeWithScroll, scheduleGridDraw, scheduleTrailDraw]);
+  }, [ready, interactive, fadeWithScroll, scheduleGridDraw, scheduleTrailDraw]);
 
   return (
     <div

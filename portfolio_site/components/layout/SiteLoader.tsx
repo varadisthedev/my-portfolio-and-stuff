@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader } from "@/components/layout/Loader";
+import { SITE_LOADED_EVENT } from "@/lib/siteLoaderEvent";
 
 const MIN_VISIBLE_MS = 3500;
 const FADE_MS = 400;
@@ -43,7 +44,14 @@ export function SiteLoader() {
 
     const finish = () => {
       const elapsed = Date.now() - mountedAt;
-      window.setTimeout(() => setFading(true), Math.max(minVisibleMs - elapsed, 0));
+      window.setTimeout(() => {
+        // Fired right as the fade-out begins, not after — gives anything
+        // waiting on it (see GithubGridBackground) a head start so it's
+        // already painted its first frame by the time the splash is
+        // actually transparent.
+        window.dispatchEvent(new Event(SITE_LOADED_EVENT));
+        setFading(true);
+      }, Math.max(minVisibleMs - elapsed, 0));
     };
 
     if (document.readyState === "complete") {

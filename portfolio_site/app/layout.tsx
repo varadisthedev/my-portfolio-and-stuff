@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Sora } from "next/font/google";
+import { Inter, JetBrains_Mono, Press_Start_2P, Sora } from "next/font/google";
 import { CustomCursor } from "@/components/layout/CustomCursor";
 import { DomainSlider } from "@/components/layout/DomainSlider";
 import { GithubGridBackground } from "@/components/layout/GithubGridBackground";
@@ -27,6 +27,14 @@ const jetbrains = JetBrains_Mono({
   weight: ["500"],
 });
 
+// Only used for the PixelCat's speech-bubble text (DialogBubble) — a true
+// 8-bit pixel font, deliberately not part of the general type system.
+const pixel = Press_Start_2P({
+  variable: "--font-pixel",
+  subsets: ["latin"],
+  weight: "400",
+});
+
 export const metadata: Metadata = {
   title: site.title,
   description: site.description,
@@ -40,7 +48,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sora.variable} ${inter.variable} ${jetbrains.variable} dark h-full antialiased`}
+      className={`${sora.variable} ${inter.variable} ${jetbrains.variable} ${pixel.variable} dark h-full antialiased`}
     >
       <body className="min-h-full overflow-x-hidden bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
         {/* Single sitewide instance — the hero no longer paints its own copy
@@ -54,7 +62,7 @@ export default function RootLayout({
           fadeWithScroll
           cellSize={16}
           gap={6}
-          intensity={0.65}
+          intensity={0.75}
         />
         <CustomCursor />
         <SiteLoader />

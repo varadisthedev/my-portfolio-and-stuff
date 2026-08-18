@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SiGithub } from "react-icons/si";
+import { VisitorCounter } from "@/components/layout/VisitorCounter";
 import { site } from "@/lib/site";
 
 export function SiteFooter() {
@@ -25,6 +26,10 @@ export function SiteFooter() {
             Portfolio source for curious devs
           </Link>
         </div>
+      </div>
+
+      <div className="border-t border-outline-variant px-(--spacing-margin-mobile) py-3 md:px-(--spacing-margin-desktop)">
+        <VisitorCounter />
       </div>
     </footer>
   );

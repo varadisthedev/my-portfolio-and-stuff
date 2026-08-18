@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { DialogBubble } from "@/components/ui/DialogBubble";
 
 // Hand-drawn, verified as ASCII before being ported here (each row printed
 // and eyeballed for ears/head/tail proportions) — 'X' body, 'o' tail,
@@ -33,11 +34,29 @@ const EYES: Array<[row: number, col: number]> = [
   [3, 9],
 ];
 
+const MOUTH: Array<[number, number]> = [
+
+  [5, 5],
+  [5, 7],
+];
 // Happy/patted eyes: each eye is a tiny chevron, ">" on the left and "<" on
 // the right, so together they read as the "><" squint emoticons make.
 const HAPPY_EYES: Array<[row: number, col: number]> = [
   [2, 4], [3, 5], [4, 4],
   [2, 9], [3, 8], [4, 9],
+];
+
+// Single pixel, centered under the eyes — as minimal as a nose can get.
+const NOSE: Array<[row: number, col: number]> = [[4, 6]];
+
+// Two short strokes per cheek, level with the nose/mouth rather than the
+// eyes, just outside the outline so they read as whiskers instead of
+// floating off on their own.
+const WHISKERS: Array<[row: number, col: number]> = [
+  [4, -1], [4, -2],
+  [5, -1], [5, -2],
+  [4, 13], [4, 14],
+  [5, 13], [5, 14],
 ];
 
 function buildOutlineCells(cells: Array<[number, number]>) {
@@ -102,6 +121,11 @@ type PixelCatProps = {
   catEyeColor?: string;
   catOutlineColor?: string;
   catHeartColor?: string;
+  catNoseColor?: string;
+  catMouthColor?: string;
+  /** Speech-bubble text, positioned above and to the left of the cat.
+   * Bubble only renders when this is set. */
+  text?: string;
 };
 
 /** A tiny pixel-art white cat, single-div box-shadow technique (one real
@@ -113,7 +137,7 @@ type PixelCatProps = {
  * timer and, when `patrol` is set, paces back and forth. Purely decorative
  * (`aria-hidden`), meant to be absolutely positioned by a `relative`
  * parent. */
-export function PixelCat({ size = 2, className, patrol = 0, delay = 0, catColor = "#f5f4f2", catEyeColor = "#000000", catOutlineColor = "#d4d4d4", catHeartColor = "#ef4444" }: PixelCatProps) {
+export function PixelCat({ size = 2, className, patrol = 0, delay = 0, catColor = "#f5f4f2", catEyeColor = "#000000", catMouthColor = "#f9a8d4", catOutlineColor = "#d4d4d4", catHeartColor = "#ef4444", catNoseColor = "#f9a8d4", text }: PixelCatProps) {
   const [blinking, setBlinking] = useState(false);
   const [isPatting, setIsPatting] = useState(false);
   const pattingTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -236,7 +260,27 @@ export function PixelCat({ size = 2, className, patrol = 0, delay = 0, catColor 
             />
           )
         )}
+        <div
+          style={{
+            position: "absolute",
+            width: size,
+            height: size,
+            boxShadow: buildShadow(size, catNoseColor, NOSE),
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            width: size,
+            height: size,
+            boxShadow: buildShadow(size, catMouthColor, MOUTH),
+          }}
+        />
+
+
       </motion.div>
+
+      <DialogBubble text={text} className="bottom-full left-0 mb-4 -translate-x-[55%]" />
 
       <AnimatePresence>
         {isPatting &&

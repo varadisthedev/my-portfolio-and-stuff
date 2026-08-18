@@ -12,6 +12,9 @@ export type Project = {
   repoHref: string;
   liveHref?: string;
   highlight?: string;
+  /** Path under /public, e.g. "/projects/peafowl.png". Optional — cards
+   * render a placeholder until a real screenshot is dropped in. */
+  image?: string;
 };
 
 export const topProjects: Project[] = [
@@ -19,7 +22,7 @@ export const topProjects: Project[] = [
     id: "peafowl",
     title: "Peafowl",
     description:
-      "Real-time chat platform with Socket.io messaging, Redis Pub/Sub for horizontal scaling and presence tracking, and JWT-based auth with role-based access and rate limiting.",
+      "A WhatsApp-style chat app built to explore scalable real-time architecture: Socket.IO servers publish through a Redis pub/sub adapter instead of holding state directly, so message delivery and presence tracking keep working across multiple stateless server instances.",
     tags: ["TypeScript", "Socket.io", "Redis", "MongoDB", "JWT"],
     repoHref: "https://github.com/varadisthedev/Peafowl",
     liveHref: "https://frontpeafowl.vercel.app",
@@ -28,7 +31,7 @@ export const topProjects: Project[] = [
     id: "rentigo",
     title: "RentiGO",
     description:
-      "Peer-to-peer rental marketplace with geospatial search (Leaflet + OpenStreetMap), Razorpay UPI payments, and Clerk auth.",
+      "Peer-to-peer marketplace for renting out underused gear locally. Geospatial search (Leaflet + OpenStreetMap) surfaces what's actually nearby, while Razorpay and Clerk take on payments and identity so the app itself never touches raw credentials or payment data.",
     tags: ["MERN", "Leaflet", "Razorpay", "Clerk"],
     repoHref: "https://github.com/varadisthedev/RENTIGO_PIH2026",
     liveHref: "https://rentigo-pika2.vercel.app",
@@ -38,8 +41,8 @@ export const topProjects: Project[] = [
     id: "live-legal-ai",
     title: "Live Legal Analyzer",
     description:
-      "AI-powered legal document analysis platform — a Python RAG microservice handles contextual retrieval with k-means chunk filtering, Claude AI generates grounded answers over uploaded documents.",
-    tags: ["Next.js", "Python", "RAG", "Claude AI", "Clerk"],
+      "Legal-document Q&A over your own files: a Python FastAPI microservice builds a separate FAISS vector index per uploaded PDF/DOCX and runs retrieval, so answers stay grounded in the source document instead of the model's general knowledge.",
+    tags: ["Next.js", "Python", "FastAPI", "FAISS", "Clerk"],
     repoHref: "https://github.com/varadisthedev/LiveLegalAI",
     liveHref: "https://front-live-legal-ai.vercel.app",
   },

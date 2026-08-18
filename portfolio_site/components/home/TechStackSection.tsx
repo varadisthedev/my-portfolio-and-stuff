@@ -133,13 +133,34 @@ function buildPath(container: DOMRect, f: HTMLElement, b: HTMLElement, d: HTMLEl
   ].join(" ");
 }
 
-/** A single short light traveling the route above and back — classic
- * Snake, not a per-block state machine. One continuous `path`, a fixed-length
- * dash (the body) sliding along it via `stroke-dashoffset`, and nothing else:
+type SnakeBox = {
+  d: string;
+  width: number;
+  height: number;
+  totalLen: number;
+  dash: number;
+};
+
+/** Real length in SVG user units of a path string — independent of the
+ * `pathLength` normalization trick used for the dash animation below, which
+ * only affects dash math, not `getTotalLength`/`getPointAtLength`. Built on
+ * a detached element (never attached to the DOM) purely for its geometry. */
+function measurePathLength(d: string) {
+  const temp = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  temp.setAttribute("d", d);
+  return temp.getTotalLength();
+}
+
+/** A single light traveling the route above and back — classic Snake, not a
+ * per-block state machine. One continuous `path`, a dash (the body) sliding
+ * along it via `stroke-dashoffset`, and a small lit dot riding at its front:
  * wherever the body isn't, there's no stroke at all, so the trail is simply
  * never drawn behind it rather than needing to be separately erased.
  * `repeatType: "mirror"` makes it retrace the same path back to the start
- * once it reaches Database, forever. */
+ * once it reaches Database, forever. The body's length is computed from the
+ * route's real geometry — one full node perimeter, plus a little — so it
+ * always reads as "wraps an entire block at once" regardless of how big the
+ * boxes actually render. */
 function SnakeTrail({
   containerRef,
   frontendRef,
@@ -152,7 +173,17 @@ function SnakeTrail({
   databaseRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const prefersReducedMotion = useReducedMotion();
-  const [box, setBox] = useState<{ d: string; width: number; height: number } | null>(null);
+  const [box, setBox] = useState<SnakeBox | null>(null);
+  const pathRef = useRef<SVGPathElement>(null);
+  const progress = useMotionValue(0);
+  const headX = useMotionValue(0);
+  const headY = useMotionValue(0);
+  // Trailing, not centered: a centered dash wastes half its length pointing
+  // backward into whatever the snake just left, so a freshly-entered block
+  // only gets illuminated by the other half — not enough to reliably cover
+  // all four sides. Trailing means the full length lights up what's behind
+  // the current point.
+  const dashOffset = useTransform(progress, (t) => -t);
 
   useEffect(() => {
     const measure = () => {
@@ -161,12 +192,14 @@ function SnakeTrail({
       const b = backendRef.current;
       const d = databaseRef.current;
       if (!container || !f || !b || !d) return;
+
       const containerRect = container.getBoundingClientRect();
-      setBox({
-        d: buildPath(containerRect, f, b, d),
-        width: containerRect.width,
-        height: containerRect.height,
-      });
+      const dAttr = buildPath(containerRect, f, b, d);
+      const totalLen = measurePathLength(dAttr);
+      const perimeter = 2 * (f.offsetWidth + f.offsetHeight);
+      const dash = Math.min(0.4, Math.max(0.08, (perimeter * 1.25) / totalLen));
+
+      setBox({ d: dAttr, width: containerRect.width, height: containerRect.height, totalLen, dash });
     };
 
     measure();
@@ -179,6 +212,48 @@ function SnakeTrail({
     };
   }, [containerRef, frontendRef, backendRef, databaseRef]);
 
+  // Deliberately decoupled from `box`/geometry: a resize (or the couple of
+  // legitimate reflows web fonts cause right after mount) must never reset
+  // this timer, or the snake would keep snapping back near the door instead
+  // of ever reaching the far side of a loop.
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    const controls = animate(progress, 1, {
+      duration: 11,
+      ease: "linear",
+      repeat: Infinity,
+      repeatType: "mirror",
+    });
+
+    // Pauses (not stops — `.stop()` would forget the current position) the
+    // infinite loop, and the per-frame `getPointAtLength` DOM work it
+    // drives via the subscription below, whenever the diagram has scrolled
+    // out of view. Resumes from wherever it left off.
+    const container = containerRef.current;
+    const io = container
+      ? new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) controls.play();
+            else controls.pause();
+          },
+          { threshold: 0 }
+        )
+      : null;
+    if (container && io) io.observe(container);
+
+    return () => {
+      controls.stop();
+      io?.disconnect();
+    };
+  }, [prefersReducedMotion, progress, containerRef]);
+
+  useMotionValueEvent(progress, "change", (t) => {
+    if (!pathRef.current || !box) return;
+    const pt = pathRef.current.getPointAtLength(t * box.totalLen);
+    headX.set(pt.x);
+    headY.set(pt.y);
+  });
+
   if (!box || prefersReducedMotion) return null;
 
   return (
@@ -190,21 +265,22 @@ function SnakeTrail({
       viewBox={`0 0 ${box.width} ${box.height}`}
     >
       <motion.path
+        ref={pathRef}
         d={box.d}
         fill="none"
         stroke="var(--primary)"
-        strokeWidth={2}
+        strokeWidth={2.5}
         strokeLinecap="round"
         pathLength={1}
-        strokeDasharray="0.14 1"
-        style={{ filter: "drop-shadow(0 0 3px var(--primary))" }}
-        animate={{ strokeDashoffset: [0, -1] }}
-        transition={{
-          duration: 6.5,
-          ease: "easeInOut",
-          repeat: Infinity,
-          repeatType: "mirror",
-        }}
+        strokeDasharray={`${box.dash} 1`}
+        style={{ strokeDashoffset: dashOffset, filter: "drop-shadow(0 0 4px var(--primary))" }}
+      />
+      <motion.circle
+        cx={headX}
+        cy={headY}
+        r={4.5}
+        fill="var(--primary)"
+        style={{ filter: "drop-shadow(0 0 6px var(--primary))" }}
       />
     </svg>
   );
@@ -228,23 +304,28 @@ export function TechStackSection() {
         </h2>
 
         <div className="relative mt-(--spacing-stack-md)">
-          <PixelCat size={6} delay={2.4} className="-top-13 right-10" />
+          <PixelCat size={6} delay={2.4} className="-top-13 right-10" text="Damn, that's a lot of tech!" />
 
           <div className="border border-outline-variant bg-background p-6 md:p-8">
             {/* Frontend -> Backend -> Database, traced by a single traveling
             light that runs the route and back, like Snake. */}
             <div ref={containerRef} className="relative flex flex-col items-center gap-0 md:flex-row md:items-stretch md:justify-center">
+              <StackNode category={frontend} nodeRef={frontendRef} />
+              <DataConnector />
+              <StackNode category={backend} nodeRef={backendRef} />
+              <DataConnector />
+              <StackNode category={database} nodeRef={databaseRef} />
+              {/* Rendered last so it paints on top of the nodes' opaque
+              backgrounds — an overlay drawn before its siblings gets
+              painted over by them, which is why the top/bottom edges (fully
+              inside each box) were disappearing while the left/right edges
+              (bleeding into the transparent connector gaps) stayed visible. */}
               <SnakeTrail
                 containerRef={containerRef}
                 frontendRef={frontendRef}
                 backendRef={backendRef}
                 databaseRef={databaseRef}
               />
-              <StackNode category={frontend} nodeRef={frontendRef} />
-              <DataConnector />
-              <StackNode category={backend} nodeRef={backendRef} />
-              <DataConnector />
-              <StackNode category={database} nodeRef={databaseRef} />
             </div>
 
             {/* Tools & DevOps: the layer underneath everything above */}

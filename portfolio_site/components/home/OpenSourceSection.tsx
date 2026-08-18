@@ -73,7 +73,7 @@ export function OpenSourceSection({ stats: initialStats }: OpenSourceSectionProp
         <div className="relative mt-(--spacing-stack-md) grid grid-cols-1 gap-8 border border-outline-variant bg-background p-6 md:grid-cols-[1fr_auto] md:items-center">
           {/* Perched on the top border, like it wandered onto the ledge —
           bottom edge of the sprite lands right on the border line. */}
-          <PixelCat size={2} className="-top-5 left-8" />
+          <PixelCat size={6} delay={2.4} className="-top-10 right-8" text="no Dsa commits btw" catColor="#645d5d" catEyeColor="#080606" catOutlineColor="#292829" />
 
           <div className="overflow-x-auto">
             {mounted ? (
