@@ -11,10 +11,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { contactContent } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
+// Driven by `data-cursor-active` (see CustomCursor.tsx), not
+// `:focus-visible` — the latter stays true for as long as the field is
+// focused regardless of where the mouse is, which is exactly what this
+// site doesn't want: the highlight should track active mouse engagement,
+// so it resets the moment the cursor leaves the field even if it's still
+// focused. CustomCursor sets/clears the attribute on focusin/focusout
+// universally (keyboard and touch included), and additionally clears it
+// early — before blur — when a real mouse moves off the field.
 const fieldClassName = cn(
   "h-11 rounded-lg border-outline-variant bg-[#050505] px-3 font-body-md text-foreground transition-all duration-200",
   "placeholder:text-muted-foreground/60",
-  "focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:shadow-[0_0_0_1px_rgba(63,185,80,0.25)]"
+  // Cancels the base Input/Textarea's own native `focus-visible:` ring
+  // (see ui/input.tsx, ui/textarea.tsx) — same variant/property as those,
+  // so tailwind-merge drops theirs in favor of these, since it would
+  // otherwise show regardless of the data-attribute state below.
+  "focus-visible:border-outline-variant focus-visible:ring-0",
+  "data-[cursor-active=true]:border-primary data-[cursor-active=true]:ring-2 data-[cursor-active=true]:ring-primary/25 data-[cursor-active=true]:shadow-[0_0_0_1px_rgba(63,185,80,0.25)]"
 );
 
 const labelClassName = "font-code-label uppercase text-muted-foreground";
