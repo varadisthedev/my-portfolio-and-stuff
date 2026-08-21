@@ -99,12 +99,19 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 96px;
+    /* Chromium's elastic overscroll (trackpad bounce / scrollbar dragged
+       past the top) translates the whole viewport, fixed-position elements
+       included — the fixed grid background and pill navbar slide down with
+       it and expose plain black above them. Disabling the bounce keeps
+       fixed chrome pinned at the boundary instead of chasing it. */
+    overscroll-behavior-y: none;
   }
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background font-sans text-foreground antialiased;
+    overscroll-behavior-y: none;
   }
 }
 

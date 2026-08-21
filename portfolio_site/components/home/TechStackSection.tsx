@@ -298,7 +298,7 @@ export function TechStackSection() {
       className="scroll-mt-32 border-t border-outline-variant py-(--spacing-stack-lg)"
     >
       <Container>
-        <SectionKicker index="02" label="TECH STACK" />
+        <SectionKicker index="03" label="TECH STACK" />
         <h2 className="max-w-2xl font-headline-lg text-foreground">
           Tools I reach for, and why they earn a place in the stack.
         </h2>

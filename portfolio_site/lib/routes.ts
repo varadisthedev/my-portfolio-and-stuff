@@ -1,6 +1,7 @@
 export const routes = {
   home: "/#home",
   work: "/#work",
+  experience: "/#experience",
   stack: "/#stack",
   openSource: "/#open-source",
   contact: "/#contact",
@@ -16,7 +17,8 @@ export type NavItem = {
 export const mainNav: NavItem[] = [
   { label: "Home", href: routes.home },
   { label: "Work", href: routes.work },
+  { label: "Experience", href: routes.experience },
   { label: "Stack", href: routes.stack },
-  { label: "Open Source", href: routes.openSource },
+  { label: "OSS", href: routes.openSource },
   { label: "Contact", href: routes.contact },
 ];

@@ -59,7 +59,7 @@ export function OpenSourceSection({ stats: initialStats }: OpenSourceSectionProp
       className="scroll-mt-32 border-t border-outline-variant py-(--spacing-stack-lg)"
     >
       <Container>
-        <SectionKicker index="03" label="OPEN SOURCE" />
+        <SectionKicker index="04" label="OPEN SOURCE" />
         <h2 className="max-w-2xl font-headline-lg text-foreground">
           Most of this happens in public.
         </h2>
@@ -118,7 +118,7 @@ export function OpenSourceSection({ stats: initialStats }: OpenSourceSectionProp
               </div>
               <div>
                 <CountUp
-                  value={stats.loc}
+                  value={stats.linesAdded}
                   duration={1.8}
                   replayToken={replayToken}
                   className="font-headline-md text-primary"

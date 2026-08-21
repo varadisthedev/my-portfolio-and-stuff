@@ -1,6 +1,8 @@
 import { Resend } from "resend";
 import chalk from "chalk";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+import { connectToMongo } from "@/lib/connectToMongo";
+import ContactMessage from "@/models/ContactMessage";
 const log = console.log;
 
 const RATE_LIMIT = 3;
@@ -59,7 +61,18 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         } // doenst check for all whitespace but good enough for now
-        await resend.emails.send({
+
+        await connectToMongo();
+        const record = await ContactMessage.create({
+            name,
+            email,
+            subject,
+            message,
+            ip,
+            status: "pending",
+        });
+
+        const { data, error } = await resend.emails.send({
             from: "onboarding@resend.dev",
             to: myMail,
             subject: subject?.trim()
@@ -68,6 +81,24 @@ export async function POST(req: Request) {
             replyTo: email,
             text: `From: ${name} <${email}>\n\n${message}`,
         });
+
+        if (error) {
+            log(chalk.red("Resend rejected the email"));
+            console.log(error);
+            await ContactMessage.updateOne(
+                { _id: record._id },
+                { status: "failed", error: error.message }
+            );
+            return Response.json(
+                { success: false, error: "Failed to send email" },
+                { status: 502 }
+            );
+        }
+
+        await ContactMessage.updateOne(
+            { _id: record._id },
+            { status: "sent", resendId: data?.id }
+        );
         log(chalk.green("Email sent"))
 
         return Response.json({

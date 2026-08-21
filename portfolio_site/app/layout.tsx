@@ -51,6 +51,26 @@ export default function RootLayout({
       className={`${sora.variable} ${inter.variable} ${jetbrains.variable} ${pixel.variable} dark h-full antialiased`}
     >
       <body className="min-h-full overflow-x-hidden bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
+        {/* Overscroll scrim: even with overscroll-behavior-y disabling the
+        bounce (see globals.css), a hard scrollbar-drag past the top can
+        still nudge fixed-position content in Chromium, exposing a flat
+        strip of plain body background above the grid/nav — a visible "cut"
+        against everything else's texture. Sits behind the grid (-z-20 vs.
+        its -z-10) so it's invisible under normal circumstances; oversized
+        past every edge by more than the bounce ever travels, so whichever
+        direction things get nudged, this radial is still there covering the
+        gap instead of raw empty space. Solid across the middle, only
+        fading at its own far edges — which sit well outside anything that
+        ever becomes visible. */}
+        <div
+          className="fixed -inset-[220px] -z-20 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse 90% 90% at 50% 50%, var(--background) 82%, transparent 100%)",
+          }}
+          aria-hidden
+        />
+
         {/* Single sitewide instance — the hero no longer paints its own copy
         (see HeroSection.tsx), so there's exactly one canvas behind the whole
         page. Fixed (viewport-sized, not document-sized) for cost reasons;

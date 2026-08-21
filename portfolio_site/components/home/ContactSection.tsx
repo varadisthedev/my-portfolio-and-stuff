@@ -13,7 +13,7 @@ export function ContactSection() {
       className="scroll-mt-32 border-t border-outline-variant py-(--spacing-stack-lg)"
     >
       <Container>
-        <SectionKicker index="04" label="CONTACT" />
+        <SectionKicker index="05" label="CONTACT" />
         <h2 className="max-w-2xl font-headline-lg text-foreground">
           {contactContent.headline}
         </h2>
