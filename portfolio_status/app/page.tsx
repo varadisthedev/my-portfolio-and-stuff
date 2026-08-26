@@ -4,13 +4,15 @@ import { getDashboardData } from "@/lib/dashboard";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { OverallBanner } from "@/components/status/overall-banner";
 import { StatTile } from "@/components/status/stat-tile";
-import { DomainCard } from "@/components/status/domain-card";
+import { DomainList } from "@/components/status/domain-list";
 import { AutoRefresh } from "@/components/status/auto-refresh";
+import { RefreshButton } from "@/components/status/refresh-button";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const { domains, overall } = await getDashboardData();
+  const allStale = overall.totalCount > 0 && overall.staleCount === overall.totalCount;
 
   return (
     <main className="min-h-screen">
@@ -21,7 +23,8 @@ export default async function Home() {
             <h1 className="mt-1 text-2xl font-semibold text-ink">Service Health</h1>
           </div>
           <div className="flex items-center gap-3">
-            <AutoRefresh />
+            <AutoRefresh lastCheckedAt={overall.lastCheckedAt} isStale={allStale} />
+            <RefreshButton />
             <ThemeToggle />
             <Link
               href="/admin"
@@ -33,7 +36,12 @@ export default async function Home() {
           </div>
         </header>
 
-        <OverallBanner upCount={overall.upCount} downCount={overall.downCount} totalCount={overall.totalCount} />
+        <OverallBanner
+          upCount={overall.upCount}
+          downCount={overall.downCount}
+          totalCount={overall.totalCount}
+          staleCount={overall.staleCount}
+        />
 
         <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatTile
@@ -54,22 +62,20 @@ export default async function Home() {
           />
         </section>
 
-        <section className="grid gap-4">
-          {domains.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-hairline px-5 py-10 text-center text-sm text-ink-muted">
-              No services configured yet. Sign in to the{" "}
-              <Link href="/admin" className="text-accent hover:underline">
-                admin dashboard
-              </Link>{" "}
-              to add one.
-            </div>
-          ) : (
-            domains.map((domain) => <DomainCard key={domain.id} domain={domain} />)
-          )}
-        </section>
+        {domains.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-hairline px-5 py-10 text-center text-sm text-ink-muted">
+            No services configured yet. Sign in to the{" "}
+            <Link href="/admin" className="text-accent hover:underline">
+              admin dashboard
+            </Link>{" "}
+            to add one.
+          </div>
+        ) : (
+          <DomainList domains={domains} />
+        )}
 
         <footer className="pb-4 text-center text-xs text-ink-muted">
-          Checks run on a schedule and refresh here automatically.
+          Every check adds a slice to a service&rsquo;s day — grey means no check ran. Refresh to record one now.
         </footer>
       </div>
     </main>

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun, SunMoon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsClient } from "@/lib/use-is-client";
 
 const OPTIONS = [
   { value: "light", label: "Light", icon: Sun },
@@ -13,9 +13,7 @@ const OPTIONS = [
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  const mounted = useIsClient();
 
   return (
     <div

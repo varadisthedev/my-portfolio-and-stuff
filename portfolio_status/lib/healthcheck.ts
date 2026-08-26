@@ -42,6 +42,8 @@ export async function runAllChecks(): Promise<CheckResult[]> {
   await connectToMongo();
   const domains = await DomainModel.find().lean();
 
+  if (domains.length === 0) return [];
+
   const results = await Promise.all(domains.map((domain) => pingDomain(domain)));
 
   await StatusCheckModel.insertMany(

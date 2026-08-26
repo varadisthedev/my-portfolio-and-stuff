@@ -5,10 +5,19 @@ export interface LatencyPointView {
   latencyMs: number | null;
 }
 
+export interface UptimeSegmentView {
+  startMs: number;
+  endMs: number;
+  totalChecks: number;
+  upChecks: number;
+  uptimePct: number;
+}
+
 export interface DayBucketView {
   date: string;
   uptimePct: number | null;
   totalChecks: number;
+  segments: UptimeSegmentView[];
 }
 
 export interface DomainView {
@@ -18,6 +27,7 @@ export interface DomainView {
   currentStatus: LiveStatus;
   currentLatencyMs: number | null;
   lastCheckedAt: string | null;
+  isStale: boolean;
   uptime24h: number | null;
   uptime7d: number | null;
   uptime30d: number | null;

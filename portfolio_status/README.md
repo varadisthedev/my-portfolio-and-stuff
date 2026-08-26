@@ -21,6 +21,7 @@ and `/admin` to manage domains (sign in at `/login`).
 | `JWT_SECRET` | Signs the admin session cookie. |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD_HASH` | Credentials for `/login`. The hash is bcrypt — generate a new one with `node -e "require('bcryptjs').hash('yourpassword', 10).then(console.log)"`. **Escape every `$` as `\$`** — Next.js does `$VAR`-style expansion on `.env` files, which otherwise corrupts a bcrypt hash. |
 | `CRON_SECRET` | Required to call `GET/POST /api/cron/check` (via `x-cron-secret` header, `Authorization: Bearer <secret>`, or `?secret=`). |
+| `STALE_AFTER_MINUTES` | Optional (default `30`). How old the newest check may get before a service is flagged **Stale** — the badge stops claiming to be a live reading. |
 
 ## Scheduling health checks
 
@@ -35,6 +36,33 @@ GET https://<your-deployment>/api/cron/check?secret=<CRON_SECRET>
 every 5 minutes or so. Each check is kept for 30 days (TTL index), which
 backs the 24h/7d/30d uptime stats, the latency sparkline, and the 45-day
 uptime bar per domain.
+
+**Without a scheduler the bar is grey.** Grey means "no check ran that day" —
+not "up" and not "down". Days only get colour once checks exist for them, and
+history can't be backfilled.
+
+## Manual refresh
+
+The dashboard's **Refresh** button posts to `/api/refresh`, which runs the same
+checks as the cron route and writes them to Mongo. No secret is needed, so it's
+rate limited instead:
+
+- **5 refreshes per IP per 10 minutes** (client IP read from `x-forwarded-for`).
+- **15s global cooldown**, so several visitors clicking at once can't pile
+  requests onto the monitored services.
+
+Both counters are fixed windows stored in the `ratelimits` collection with a TTL
+index, so they hold up across serverless instances. Over-limit requests get a
+`429` with `retryAfterSeconds`, which the button shows as a countdown.
+
+## Reading the uptime bar
+
+Each day is one column, and each column is split into one slice per *run* of
+checks. Consecutive checks that agree share a slice, so a service that goes
+degraded and then recovers on the same day shows two slices in that column
+rather than a single averaged colour — a new check adds to the day, it never
+replaces it. Days that flap a lot cap out at six slices, with the smallest runs
+merged. Hover any slice for its time range, uptime %, and check count.
 
 ## Admin
 
@@ -51,5 +79,7 @@ uptime bar per domain.
 - Mongo/Mongoose for domains + check history.
 - `jose` for the session JWT, `bcryptjs` for password hashing.
 - `recharts` for the latency chart; the day-by-day uptime bar is hand-rolled.
+- Services can be sorted by working-first, down-first, or name; the choice is
+  kept in `localStorage`.
 - `next-themes` for the light/dark toggle (`data-theme` attribute, tokens in
   `app/globals.css`).

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "@/components/status/status-badge";
@@ -26,6 +26,15 @@ function formatRelativeTime(iso: string | null) {
 
 export function DomainCard({ domain }: { domain: DomainView }) {
   const [expanded, setExpanded] = useState(false);
+  // Resolved after mount so the server-rendered HTML and the client agree.
+  const [checkedAgo, setCheckedAgo] = useState<string | null>(null);
+
+  useEffect(() => {
+    const tick = () => setCheckedAgo(formatRelativeTime(domain.lastCheckedAt));
+    tick();
+    const timer = setInterval(tick, 30_000);
+    return () => clearInterval(timer);
+  }, [domain.lastCheckedAt]);
 
   return (
     <div className="rounded-2xl border border-hairline bg-surface p-5">
@@ -41,7 +50,7 @@ export function DomainCard({ domain }: { domain: DomainView }) {
             {domain.url}
           </a>
         </div>
-        <StatusBadge status={domain.currentStatus} />
+        <StatusBadge status={domain.currentStatus} stale={domain.isStale} />
       </div>
 
       <div className="mt-4">
@@ -93,7 +102,8 @@ export function DomainCard({ domain }: { domain: DomainView }) {
           </div>
 
           <p className="mt-4 text-[11px] text-ink-muted">
-            Checked {formatRelativeTime(domain.lastCheckedAt)}
+            Checked {checkedAgo ?? "—"}
+            {domain.isStale ? " · no recent check, this is the last known state" : ""}
             {domain.incidents24h > 0
               ? ` · ${domain.incidents24h} incident${domain.incidents24h === 1 ? "" : "s"} in 24h`
               : ""}

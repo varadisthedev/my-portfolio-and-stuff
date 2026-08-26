@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import type { LatencyPointView } from "@/lib/types";
+import { useIsClient } from "@/lib/use-is-client";
 
 const PALETTE = {
   light: { accent: "#2a78d6", fill: "#cde2fb", grid: "#e1e0d9", muted: "#898781", surface: "#fcfcfb", ink: "#0b0b0b" },
@@ -39,8 +39,7 @@ function CustomTooltip({
 
 export function LatencyChart({ data }: { data: LatencyPointView[] }) {
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useIsClient();
 
   const colors = PALETTE[mounted && resolvedTheme === "dark" ? "dark" : "light"];
 

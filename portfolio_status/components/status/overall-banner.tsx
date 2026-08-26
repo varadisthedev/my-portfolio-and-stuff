@@ -1,7 +1,18 @@
 import { CircleCheck, CircleAlert, CircleX } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function OverallBanner({ upCount, downCount, totalCount }: { upCount: number; downCount: number; totalCount: number }) {
+export function OverallBanner({
+  upCount,
+  downCount,
+  totalCount,
+  staleCount = 0,
+}: {
+  upCount: number;
+  downCount: number;
+  totalCount: number;
+  /** Services whose latest check is too old to trust as a live reading. */
+  staleCount?: number;
+}) {
   const unknownCount = totalCount - upCount - downCount;
 
   let tone: "good" | "warning" | "critical" = "good";
@@ -12,6 +23,11 @@ export function OverallBanner({ upCount, downCount, totalCount }: { upCount: num
     tone = "warning";
     message = "No services configured yet";
     Icon = CircleAlert;
+  } else if (staleCount === totalCount) {
+    // Every reading is old — reporting "operational" or "down" here would be a guess.
+    tone = "warning";
+    Icon = CircleAlert;
+    message = "No recent checks — status may be out of date";
   } else if (downCount > 0) {
     tone = downCount === totalCount ? "critical" : "warning";
     Icon = downCount === totalCount ? CircleX : CircleAlert;
