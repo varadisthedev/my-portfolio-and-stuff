@@ -79,3 +79,13 @@ export const PLATFORM_KEYS = Object.keys(PLATFORMS);
 export function getPlatform(key: string): PlatformDef {
   return PLATFORMS[key] ?? PLATFORMS.website;
 }
+
+// Anchor hrefs without a scheme resolve relative to the current page (e.g.
+// "leetcode.com/u/x" becomes "https://links.varadraut.dev/leetcode.com/u/x")
+// instead of navigating out, so every stored URL must carry an explicit one.
+export function normalizeUrl(platform: string, url: string): string {
+  const trimmed = url.trim();
+  if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) return trimmed;
+  if (platform === "email") return `mailto:${trimmed}`;
+  return `https://${trimmed}`;
+}

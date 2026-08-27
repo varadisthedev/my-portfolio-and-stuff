@@ -3,7 +3,7 @@ import { z } from "zod";
 import connectToMongo from "@/lib/db/connect";
 import LinkModel from "@/lib/db/models/Link";
 import { verifySession } from "@/lib/auth/session";
-import { PLATFORM_KEYS, getPlatform } from "@/lib/platforms";
+import { PLATFORM_KEYS, getPlatform, normalizeUrl } from "@/lib/platforms";
 
 const LinkSchema = z.object({
   platform: z.enum(PLATFORM_KEYS as [string, ...string[]]),
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   const link = await LinkModel.create({
     platform: parsed.data.platform,
     label: parsed.data.label?.trim() || getPlatform(parsed.data.platform).label,
-    url: parsed.data.url,
+    url: normalizeUrl(parsed.data.platform, parsed.data.url),
     order: nextOrder,
   });
 

@@ -3,7 +3,7 @@ import { z } from "zod";
 import connectToMongo from "@/lib/db/connect";
 import LinkModel from "@/lib/db/models/Link";
 import { verifySession } from "@/lib/auth/session";
-import { PLATFORM_KEYS } from "@/lib/platforms";
+import { PLATFORM_KEYS, normalizeUrl } from "@/lib/platforms";
 
 const UpdateSchema = z.object({
   platform: z.enum(PLATFORM_KEYS as [string, ...string[]]).optional(),
@@ -25,7 +25,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   await connectToMongo();
-  const link = await LinkModel.findByIdAndUpdate(id, parsed.data, { new: true }).lean();
+
+  const update = { ...parsed.data };
+  if (update.url) {
+    const existing = await LinkModel.findById(id).lean();
+    if (!existing) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    update.url = normalizeUrl(update.platform ?? existing.platform, update.url);
+  }
+
+  const link = await LinkModel.findByIdAndUpdate(id, update, { new: true }).lean();
   if (!link) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
