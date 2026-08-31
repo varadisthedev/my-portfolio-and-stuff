@@ -2,6 +2,18 @@
 
 Running log of major decisions. Newest first.
 
+## 2026-08-31 — Selectable auto-refresh interval
+
+- **Poll interval (5m/10m/20m/1h/3h) is user-selectable and stored in `localStorage`**,
+  same pattern as sort. Default stays 5m, matching the Render cron's check cadence.
+- **The timer POSTs to the public `/api/refresh` endpoint**, the same one the manual
+  Refresh button uses, so it actually re-checks every service instead of just
+  re-reading whatever the DB already has — and as a side effect keeps pinging the
+  Render instance often enough to stop its free tier from sleeping. Failures (e.g.
+  hitting the endpoint's own rate limit) are swallowed silently; it's a convenience,
+  not the only path to fresh data. 10m was added as an option specifically for this
+  keep-awake use case, comfortably under Render's ~15min free-tier sleep timeout.
+
 ## 2026-08-26 — Uptime bar, manual refresh, sorting
 
 - **Uptime bar draws one slice per run of checks, not one colour per day.** Consecutive
