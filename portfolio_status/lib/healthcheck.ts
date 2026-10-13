@@ -1,7 +1,6 @@
 import "server-only";
 import connectToMongo from "@/lib/db/connect";
-import DomainModel, { type DomainDoc } from "@/lib/db/models/Domain";
-import StatusCheckModel from "@/lib/db/models/StatusCheck";
+import type { DomainDoc } from "@/lib/db/models/Domain";
 
 const REQUEST_TIMEOUT_MS = 10_000;
 
@@ -39,14 +38,14 @@ async function pingDomain(domain: Pick<DomainDoc, "_id" | "url">): Promise<Check
 }
 
 export async function runAllChecks(): Promise<CheckResult[]> {
-  await connectToMongo();
-  const domains = await DomainModel.find().lean();
+  const { Domain, StatusCheck } = await connectToMongo();
+  const domains = await Domain.find().lean();
 
   if (domains.length === 0) return [];
 
   const results = await Promise.all(domains.map((domain) => pingDomain(domain)));
 
-  await StatusCheckModel.insertMany(
+  await StatusCheck.insertMany(
     results.map((result) => ({
       domain: result.domainId,
       status: result.status,

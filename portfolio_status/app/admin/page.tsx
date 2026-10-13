@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { verifySession } from "@/lib/auth/session";
 import connectToMongo from "@/lib/db/connect";
-import DomainModel from "@/lib/db/models/Domain";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { AdminDomainManager, type DomainRecord } from "@/components/auth/admin-domain-manager";
@@ -16,8 +15,8 @@ export default async function AdminPage() {
     redirect("/login");
   }
 
-  await connectToMongo();
-  const domains = await DomainModel.find().sort({ createdAt: 1 }).lean();
+  const { Domain } = await connectToMongo();
+  const domains = await Domain.find().sort({ createdAt: 1 }).lean();
 
   const domainRecords: DomainRecord[] = domains.map((domain) => ({
     id: domain._id.toString(),

@@ -11,15 +11,16 @@ const INTERVALS = [
   { id: 5 * 60_000, label: "5m" },
   { id: 10 * 60_000, label: "10m" },
   { id: 20 * 60_000, label: "20m" },
+  { id: 30 * 60_000, label: "30m" },
   { id: 60 * 60_000, label: "1h" },
   { id: 180 * 60_000, label: "3h" },
 ] as const;
 
 type IntervalMs = (typeof INTERVALS)[number]["id"];
 
-// Matches the interval the cron job on Render actually checks services at, so
-// the dashboard's default polling can't outrun data that never changed.
-const DEFAULT_INTERVAL_MS: IntervalMs = 5 * 60_000;
+// Each tick re-checks every service, so visitors are held to this; only an
+// admin can pick a different interval.
+const DEFAULT_INTERVAL_MS: IntervalMs = 30 * 60_000;
 
 function isIntervalMs(value: unknown): value is IntervalMs {
   return INTERVALS.some((interval) => interval.id === value);
@@ -74,13 +75,23 @@ function formatAge(ms: number): string {
 /**
  * Reports when the newest check in the database actually ran — not when this
  * component last mounted — and pulls fresh server data on a user-selectable
- * interval (persisted, defaulting to the cron's own 5-minute cadence).
+ * interval (persisted, default 30 minutes). Only admins can change the interval;
+ * everyone else is pinned to the default regardless of what's in localStorage.
  */
-export function AutoRefresh({ lastCheckedAt, isStale }: { lastCheckedAt: string | null; isStale: boolean }) {
+export function AutoRefresh({
+  lastCheckedAt,
+  isStale,
+  isAdmin,
+}: {
+  lastCheckedAt: string | null;
+  isStale: boolean;
+  isAdmin: boolean;
+}) {
   const router = useRouter();
   const isClient = useIsClient();
   const [age, setAge] = useState<string | null>(null);
-  const intervalMs = useSyncExternalStore(subscribe, readInterval, () => DEFAULT_INTERVAL_MS);
+  const storedInterval = useSyncExternalStore(subscribe, readInterval, () => DEFAULT_INTERVAL_MS);
+  const intervalMs = isAdmin ? storedInterval : DEFAULT_INTERVAL_MS;
 
   useEffect(() => {
     const tick = () => {
@@ -89,9 +100,8 @@ export function AutoRefresh({ lastCheckedAt, isStale }: { lastCheckedAt: string 
 
     tick();
     const tickTimer = setInterval(tick, 1000);
-    // POSTs to /api/refresh so this actually re-checks every service (and, as a
-    // side effect, pings the server often enough to stop Render's free tier from
-    // sleeping it) rather than just re-reading whatever the DB already has.
+    // POSTs to /api/refresh so this actually re-checks every service rather than
+    // just re-reading whatever the DB already has.
     // Ignores failures (e.g. rate limiting) — it's a background convenience, not
     // the only way to get fresh data.
     const refreshTimer = setInterval(() => {
@@ -130,20 +140,21 @@ export function AutoRefresh({ lastCheckedAt, isStale }: { lastCheckedAt: string 
       </p>
 
       <div
-        className="inline-flex rounded-full border border-hairline p-0.5"
+        className={cn("inline-flex rounded-full border border-hairline p-0.5", !isAdmin && "opacity-50")}
         role="group"
         aria-label="Auto-refresh interval"
-        title="How often this page pulls the latest recorded checks"
+        title={isAdmin ? "How often this page re-checks every service" : "Sign in as admin to change the refresh interval"}
       >
         {INTERVALS.map((option) => (
           <button
             key={option.id}
             type="button"
             onClick={() => writeInterval(option.id)}
+            disabled={!isAdmin}
             aria-pressed={intervalMs === option.id}
             className={cn(
-              "rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors",
-              intervalMs === option.id ? "bg-accent/10 text-accent" : "text-ink-secondary hover:text-ink",
+              "rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors disabled:cursor-not-allowed",
+              intervalMs === option.id ? "bg-accent/10 text-accent" : "text-ink-secondary enabled:hover:text-ink",
             )}
           >
             {option.label}

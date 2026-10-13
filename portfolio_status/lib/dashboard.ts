@@ -1,7 +1,5 @@
 import "server-only";
 import connectToMongo from "@/lib/db/connect";
-import DomainModel from "@/lib/db/models/Domain";
-import StatusCheckModel from "@/lib/db/models/StatusCheck";
 import {
   aggregateDomain,
   DEFAULT_STALE_AFTER_MS,
@@ -33,16 +31,16 @@ function staleAfterMs(): number {
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
-  await connectToMongo();
+  const { Domain, StatusCheck } = await connectToMongo();
 
   const now = new Date();
-  const domains = await DomainModel.find().sort({ createdAt: 1 }).lean();
+  const domains = await Domain.find().sort({ createdAt: 1 }).lean();
   const since = new Date(now.getTime() - HISTORY_DAYS * 24 * 60 * 60 * 1000);
   const options = { now, staleAfterMs: staleAfterMs(), days: HISTORY_DAYS };
 
   const domainViews: DomainView[] = await Promise.all(
     domains.map(async (domain) => {
-      const checks = (await StatusCheckModel.find({ domain: domain._id, checkedAt: { $gte: since } })
+      const checks = (await StatusCheck.find({ domain: domain._id, checkedAt: { $gte: since } })
         .sort({ checkedAt: -1 })
         .lean()) as unknown as RawCheck[];
 

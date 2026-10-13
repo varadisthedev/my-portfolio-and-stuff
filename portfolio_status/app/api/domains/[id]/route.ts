@@ -2,13 +2,12 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import mongoose from "mongoose";
 import connectToMongo from "@/lib/db/connect";
-import DomainModel from "@/lib/db/models/Domain";
-import StatusCheckModel from "@/lib/db/models/StatusCheck";
 import { verifySession } from "@/lib/auth/session";
+import { domainUrlSchema } from "@/lib/domain-url";
 
 const UpdateSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100).optional(),
-  url: z.url({ error: "Must be a valid URL, e.g. https://example.com/health" }).optional(),
+  url: domainUrlSchema.optional(),
 });
 
 export async function PATCH(request: Request, ctx: RouteContext<"/api/domains/[id]">) {
@@ -31,8 +30,8 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/domains/[i
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }
 
-  await connectToMongo();
-  const domain = await DomainModel.findByIdAndUpdate(id, parsed.data, { new: true });
+  const { Domain } = await connectToMongo();
+  const domain = await Domain.findByIdAndUpdate(id, parsed.data, { new: true });
   if (!domain) {
     return NextResponse.json({ error: "Domain not found" }, { status: 404 });
   }
@@ -51,12 +50,12 @@ export async function DELETE(_request: Request, ctx: RouteContext<"/api/domains/
     return NextResponse.json({ error: "Invalid domain id" }, { status: 400 });
   }
 
-  await connectToMongo();
-  const domain = await DomainModel.findByIdAndDelete(id);
+  const { Domain, StatusCheck } = await connectToMongo();
+  const domain = await Domain.findByIdAndDelete(id);
   if (!domain) {
     return NextResponse.json({ error: "Domain not found" }, { status: 404 });
   }
-  await StatusCheckModel.deleteMany({ domain: id });
+  await StatusCheck.deleteMany({ domain: id });
 
   return NextResponse.json({ ok: true });
 }

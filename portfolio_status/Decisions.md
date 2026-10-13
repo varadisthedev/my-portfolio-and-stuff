@@ -2,6 +2,19 @@
 
 Running log of major decisions. Newest first.
 
+## 2026-10-14 — Workers fixes, admin-only controls
+
+- **One Mongo connection per request, keyed on the request's ExecutionContext.** Workers
+  bind sockets to the request that opened them; the old global cached connection made
+  later requests (e.g. Refresh) hang until the runtime killed them. Models are now bound
+  per connection via `connectToMongo()` instead of on the global mongoose instance.
+- **Refresh limit: 10 per IP per 5 min; admins exempt** (from the global 15s cooldown too).
+  IP comes from `cf-connecting-ip`, which clients can't spoof.
+- **Auto-refresh defaults to 30m and only admins can change it.** Visitors' picker is
+  disabled and any stored interval ignored. Stale threshold raised to 45m (1.5× cadence).
+- **Domain URLs without a scheme get `https://`.** Normalized server-side; only http(s) allowed.
+- **Custom `error.tsx` and `not-found.tsx`** in the dashboard's style.
+
 ## 2026-08-31 — Selectable auto-refresh interval
 
 - **Poll interval (5m/10m/20m/1h/3h) is user-selectable and stored in `localStorage`**,

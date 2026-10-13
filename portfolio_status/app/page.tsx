@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { getDashboardData } from "@/lib/dashboard";
+import { verifySession } from "@/lib/auth/session";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { OverallBanner } from "@/components/status/overall-banner";
 import { StatTile } from "@/components/status/stat-tile";
@@ -11,7 +12,7 @@ import { RefreshButton } from "@/components/status/refresh-button";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const { domains, overall } = await getDashboardData();
+  const [{ domains, overall }, session] = await Promise.all([getDashboardData(), verifySession()]);
   const allStale = overall.totalCount > 0 && overall.staleCount === overall.totalCount;
 
   return (
@@ -23,7 +24,7 @@ export default async function Home() {
             <h1 className="mt-1 text-2xl font-semibold text-ink">Service Health</h1>
           </div>
           <div className="flex items-center gap-3">
-            <AutoRefresh lastCheckedAt={overall.lastCheckedAt} isStale={allStale} />
+            <AutoRefresh lastCheckedAt={overall.lastCheckedAt} isStale={allStale} isAdmin={session !== null} />
             <RefreshButton />
             <ThemeToggle />
             <Link

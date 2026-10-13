@@ -58,7 +58,8 @@ export interface AggregateOptions {
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
 
-export const DEFAULT_STALE_AFTER_MS = 30 * 60 * 1000;
+// 1.5x the 30-minute check cadence, so data isn't flagged stale just before the next check lands.
+export const DEFAULT_STALE_AFTER_MS = 45 * 60 * 1000;
 export const HISTORY_DAYS = 45;
 
 /** A day column this wide can only render so many slices before they turn to noise. */

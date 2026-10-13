@@ -21,7 +21,7 @@ and `/admin` to manage domains (sign in at `/login`).
 | `JWT_SECRET` | Signs the admin session cookie. |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD_HASH` | Credentials for `/login`. The hash is bcrypt — generate a new one with `node -e "require('bcryptjs').hash('yourpassword', 10).then(console.log)"`. **Escape every `$` as `\$`** — Next.js does `$VAR`-style expansion on `.env` files, which otherwise corrupts a bcrypt hash. |
 | `CRON_SECRET` | Required to call `GET/POST /api/cron/check` (via `x-cron-secret` header, `Authorization: Bearer <secret>`, or `?secret=`). |
-| `STALE_AFTER_MINUTES` | Optional (default `30`). How old the newest check may get before a service is flagged **Stale** — the badge stops claiming to be a live reading. |
+| `STALE_AFTER_MINUTES` | Optional (default `45`). How old the newest check may get before a service is flagged **Stale** — the badge stops claiming to be a live reading. |
 
 ## Scheduling health checks
 
@@ -33,7 +33,7 @@ external scheduler (e.g. [cron-job.org](https://cron-job.org), free tier) at:
 GET https://<your-deployment>/api/cron/check?secret=<CRON_SECRET>
 ```
 
-every 5 minutes or so. Each check is kept for 30 days (TTL index), which
+every 30 minutes. Each check is kept for 30 days (TTL index), which
 backs the 24h/7d/30d uptime stats, the latency sparkline, and the 45-day
 uptime bar per domain.
 

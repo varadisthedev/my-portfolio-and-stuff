@@ -1,6 +1,6 @@
 import "server-only";
-import connectToMongo from "@/lib/db/connect";
-import RateLimitModel, { type RateLimitDoc } from "@/lib/db/models/RateLimit";
+import connectToMongo, { type Db } from "@/lib/db/connect";
+import type { RateLimitDoc } from "@/lib/db/models/RateLimit";
 
 export interface RateLimitResult {
   allowed: boolean;
@@ -15,11 +15,11 @@ function isDuplicateKeyError(error: unknown): boolean {
 }
 
 /** Bump the counter for `key`, opening a new window if the previous one lapsed. */
-async function bumpWindow(key: string, windowMs: number, now: Date): Promise<RateLimitDoc> {
+async function bumpWindow(RateLimit: Db["RateLimit"], key: string, windowMs: number, now: Date): Promise<RateLimitDoc> {
   const expiresAt = new Date(now.getTime() + windowMs);
 
   try {
-    return (await RateLimitModel.findOneAndUpdate(
+    return (await RateLimit.findOneAndUpdate(
       { key, expiresAt: { $gt: now } },
       { $inc: { count: 1 }, $setOnInsert: { expiresAt } },
       { new: true, upsert: true },
@@ -28,7 +28,7 @@ async function bumpWindow(key: string, windowMs: number, now: Date): Promise<Rat
     // The window lapsed but Mongo's TTL monitor (it runs once a minute) hadn't
     // reaped the document yet, so the upsert collided with it. Reopen it.
     if (!isDuplicateKeyError(error)) throw error;
-    return (await RateLimitModel.findOneAndUpdate(
+    return (await RateLimit.findOneAndUpdate(
       { key },
       { $set: { count: 1, expiresAt } },
       { new: true, upsert: true },
@@ -37,10 +37,10 @@ async function bumpWindow(key: string, windowMs: number, now: Date): Promise<Rat
 }
 
 export async function consumeRateLimit(key: string, limit: number, windowMs: number): Promise<RateLimitResult> {
-  await connectToMongo();
+  const { RateLimit } = await connectToMongo();
 
   const now = new Date();
-  const doc = await bumpWindow(key, windowMs, now);
+  const doc = await bumpWindow(RateLimit, key, windowMs, now);
   const retryAfterSeconds = Math.max(1, Math.ceil((doc.expiresAt.getTime() - now.getTime()) / 1000));
 
   if (doc.count > limit) {

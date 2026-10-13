@@ -141,10 +141,13 @@ export function AdminDomainManager({ initialDomains }: { initialDomains: DomainR
           <input
             id="new-url"
             required
-            type="url"
+            type="text"
+            inputMode="url"
+            autoCapitalize="none"
+            spellCheck={false}
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://example.com/api/health"
+            placeholder="example.com/api/health (https assumed)"
             className="rounded-lg border border-hairline bg-page px-3 py-2 text-sm text-ink outline-none focus:border-accent"
           />
         </div>
@@ -174,7 +177,10 @@ export function AdminDomainManager({ initialDomains }: { initialDomains: DomainR
                       className="rounded-lg border border-hairline bg-page px-2.5 py-1.5 text-sm text-ink outline-none focus:border-accent sm:flex-1"
                     />
                     <input
-                      type="url"
+                      type="text"
+                      inputMode="url"
+                      autoCapitalize="none"
+                      spellCheck={false}
                       value={editUrl}
                       onChange={(e) => setEditUrl(e.target.value)}
                       className="rounded-lg border border-hairline bg-page px-2.5 py-1.5 text-sm text-ink outline-none focus:border-accent sm:flex-[2]"
