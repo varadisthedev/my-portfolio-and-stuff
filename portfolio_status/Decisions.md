@@ -48,3 +48,5 @@ Running log of major decisions. Newest first.
   then — the top-level throw failed the build on `/api/cron/check`.
 - **Next 16.4.0 (was 16.2.7).** `@opennextjs/cloudflare` requires `next >=16.3.8`.
   `react-dom` pinned exact to `19.2.4` to match `react`; its `^` range had drifted to 19.3.0.
+- **Worker named `portfolio-status` (was `global-status`).** Must match the Cloudflare
+  Workers Builds project name; the `WORKER_SELF_REFERENCE` service binding uses the same name.
