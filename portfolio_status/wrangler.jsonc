@@ -7,6 +7,10 @@
 		"nodejs_compat",
 		"global_fetch_strictly_public"
 	],
+	// Declared here so deploys don't override the dashboard-managed custom domain
+	"routes": [
+		{ "pattern": "status.varadraut.dev", "custom_domain": true }
+	],
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
