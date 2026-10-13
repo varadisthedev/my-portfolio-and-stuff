@@ -52,8 +52,9 @@ Running log of major decisions. Newest first.
   Workers Builds project name; the `WORKER_SELF_REFERENCE` service binding uses the same name.
 - **Workers observability: logs + issues on, traces off.** Logs persist with invocation
   logs at 100% sampling; top-level `enabled` stays false so only the explicit sub-configs apply.
-- **Next pinned to 16.3.8 (was 16.4.0).** 16.4.0 loads a new `server/preview-props.json` that
-  OpenNext 1.20.11 doesn't inline, so the worker threw on init and every request 500'd.
-  Revisit when OpenNext supports it.
+- **Stay on Next 16.4.0; patch OpenNext on postinstall.** 16.4 loads `server/preview-props.json`,
+  which OpenNext 1.20.11 doesn't inline, so the worker threw on init (every request 500'd).
+  `scripts/patch-opennext.mjs` adds it to OpenNext's manifest glob. Delete once OpenNext ships it.
+- **`keep_vars: true`.** Otherwise each deploy deletes plain-text vars set in the dashboard.
 - **Custom domain declared in `wrangler.jsonc` routes.** Deploys override dashboard-only
   config; declaring `status.varadraut.dev` keeps it from being dropped.

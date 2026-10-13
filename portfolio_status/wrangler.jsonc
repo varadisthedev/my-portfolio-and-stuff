@@ -7,6 +7,8 @@
 		"nodejs_compat",
 		"global_fetch_strictly_public"
 	],
+	// Without this, every deploy deletes plain-text vars set in the dashboard
+	"keep_vars": true,
 	// Declared here so deploys don't override the dashboard-managed custom domain
 	"routes": [
 		{ "pattern": "status.varadraut.dev", "custom_domain": true }
