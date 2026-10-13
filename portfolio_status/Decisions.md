@@ -43,3 +43,8 @@ Running log of major decisions. Newest first.
 - **Locale-formatted times are gated behind `useIsClient()`.** Tooltips and timestamps
   render in the viewer's locale/timezone; server-rendering them mismatched on hydration
   and left the server's timezone baked into the DOM.
+- **`MONGO_URI` is checked inside `connectToMongo()`, not at module load.** `next build`
+  imports route modules to collect page data, and CI (Cloudflare) has no runtime secrets
+  then — the top-level throw failed the build on `/api/cron/check`.
+- **Next 16.4.0 (was 16.2.7).** `@opennextjs/cloudflare` requires `next >=16.3.8`.
+  `react-dom` pinned exact to `19.2.4` to match `react`; its `^` range had drifted to 19.3.0.
