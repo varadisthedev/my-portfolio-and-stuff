@@ -50,3 +50,5 @@ Running log of major decisions. Newest first.
   `react-dom` pinned exact to `19.2.4` to match `react`; its `^` range had drifted to 19.3.0.
 - **Worker named `portfolio-status` (was `global-status`).** Must match the Cloudflare
   Workers Builds project name; the `WORKER_SELF_REFERENCE` service binding uses the same name.
+- **Workers observability: logs + issues on, traces off.** Logs persist with invocation
+  logs at 100% sampling; top-level `enabled` stays false so only the explicit sub-configs apply.
