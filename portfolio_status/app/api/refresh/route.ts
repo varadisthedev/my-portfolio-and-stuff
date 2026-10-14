@@ -11,13 +11,10 @@ const IP_WINDOW_MS = 5 * 60 * 1000;
 const GLOBAL_COOLDOWN_MS = 15_000;
 
 function clientIp(request: NextRequest): string {
-  // Set by Cloudflare's edge and not client-controllable, unlike the first x-forwarded-for hop.
-  const cfIp = request.headers.get("cf-connecting-ip")?.trim();
-  if (cfIp) return cfIp;
-  const forwarded = request.headers.get("x-forwarded-for");
-  const first = forwarded?.split(",")[0]?.trim();
-  if (first) return first;
-  return request.headers.get("x-real-ip")?.trim() || "unknown";
+  // Vercel overwrites both headers with the real client IP, so clients can't spoof them.
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 }
 
 function tooManyRequests(message: string, retryAfterSeconds: number) {

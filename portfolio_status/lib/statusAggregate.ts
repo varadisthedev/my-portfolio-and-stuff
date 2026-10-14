@@ -1,3 +1,5 @@
+import type { LatencyHistory, LatencyRange, LatencyRangeView, ServiceLatency } from "@/lib/types";
+
 export interface RawCheck {
   status: "up" | "down";
   latencyMs: number | null;
@@ -215,5 +217,83 @@ export function aggregateDomain(checks: RawCheck[], options: AggregateOptions = 
     latencySeries24h: last24h.map((c) => ({ t: c.checkedAt.getTime(), latencyMs: c.latencyMs })),
     dayBuckets: buildDayBuckets(checks, days, nowDate),
     incidents24h: countIncidents(last24h),
+  };
+}
+
+/**
+ * Bucket width per chart range. Buckets are aligned to epoch time, so "30d" days start at
+ * UTC midnight. ponytail: shift by the viewer's UTC offset if day boundaries ever matter.
+ */
+const LATENCY_RANGES: Record<LatencyRange, { bucketMs: number; count: number }> = {
+  "24h": { bucketMs: HOUR, count: 24 },
+  "7d": { bucketMs: 6 * HOUR, count: 28 },
+  "30d": { bucketMs: DAY, count: 30 },
+};
+
+function mean(values: number[]): number | null {
+  return values.length ? Math.round(values.reduce((sum, v) => sum + v, 0) / values.length) : null;
+}
+
+/** Nearest-rank percentile; `sortedAsc` must be sorted ascending. */
+function percentile(sortedAsc: number[], p: number): number | null {
+  if (sortedAsc.length === 0) return null;
+  return sortedAsc[Math.min(sortedAsc.length - 1, Math.ceil(p * sortedAsc.length) - 1)];
+}
+
+function latencyRangeView(
+  services: { id: string; name: string; checks: RawCheck[] }[],
+  nowMs: number,
+  { bucketMs, count }: { bucketMs: number; count: number },
+): LatencyRangeView {
+  const firstStart = Math.floor(nowMs / bucketMs) * bucketMs - (count - 1) * bucketMs;
+  const raw = Array.from({ length: count }, () => ({ values: [] as number[], checks: 0, failures: 0 }));
+
+  const serviceViews: ServiceLatency[] = services.map(({ id, name, checks }) => {
+    const values: number[] = [];
+    for (const check of checks) {
+      const i = Math.floor((check.checkedAt.getTime() - firstStart) / bucketMs);
+      if (i < 0 || i >= count) continue;
+      raw[i].checks++;
+      // Same rule as avgLatencyFor: a failed request's timing isn't a latency reading.
+      if (check.status !== "up") raw[i].failures++;
+      else if (check.latencyMs != null) {
+        raw[i].values.push(check.latencyMs);
+        values.push(check.latencyMs);
+      }
+    }
+    return { id, name, avgMs: mean(values) };
+  });
+
+  const all = raw.flatMap((b) => b.values).sort((a, b) => a - b);
+
+  return {
+    buckets: raw.map((b, i) => ({
+      start: firstStart + i * bucketMs,
+      end: firstStart + (i + 1) * bucketMs,
+      avgMs: mean(b.values),
+      minMs: b.values.length ? Math.min(...b.values) : null,
+      maxMs: b.values.length ? Math.max(...b.values) : null,
+      checks: b.checks,
+      failures: b.failures,
+    })),
+    avgMs: mean(all),
+    p95Ms: percentile(all, 0.95),
+    peakMs: all.length ? all[all.length - 1] : null,
+    checks: raw.reduce((sum, b) => sum + b.checks, 0),
+    failures: raw.reduce((sum, b) => sum + b.failures, 0),
+    services: serviceViews.sort((a, b) => (b.avgMs ?? -1) - (a.avgMs ?? -1)),
+  };
+}
+
+/** Latency across every service for each chart range. */
+export function buildLatencyHistory(
+  services: { id: string; name: string; checks: RawCheck[] }[],
+  now: Date,
+): LatencyHistory {
+  const nowMs = now.getTime();
+  return {
+    "24h": latencyRangeView(services, nowMs, LATENCY_RANGES["24h"]),
+    "7d": latencyRangeView(services, nowMs, LATENCY_RANGES["7d"]),
+    "30d": latencyRangeView(services, nowMs, LATENCY_RANGES["30d"]),
   };
 }

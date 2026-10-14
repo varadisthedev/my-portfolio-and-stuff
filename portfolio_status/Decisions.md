@@ -2,6 +2,20 @@
 
 Running log of major decisions. Newest first.
 
+## 2026-10-15 — Back to Vercel, latency panel
+
+- **Moved hosting from Cloudflare Workers to Vercel.** The Workers free plan allows 10 ms CPU
+  per request; SSR plus a Mongo handshake blew past it (error 1102) and took the site down.
+  Removed OpenNext, wrangler and the preview-props patch. Supersedes the Workers entries below.
+- **One cached Mongo connection again**, on `globalThis`; reset if the connect fails so
+  one bad attempt doesn't poison every later request.
+- **Refresh IP now from `x-real-ip`.** Vercel overwrites it, so it can't be spoofed.
+- **Latency panel on the right (sticky on lg+, between stats and list on mobile).**
+  Server pre-buckets every service's checks into 24h/1h, 7d/6h and 30d/1d series, so
+  the client gets ~80 points instead of raw checks. Failed checks count as failures,
+  not latency. Light theme: smooth ink line on a white card; dark: straight segments,
+  square markers, hard corners, dot grid.
+
 ## 2026-10-14 — Workers fixes, admin-only controls
 
 - **One Mongo connection per request, keyed on the request's ExecutionContext.** Workers

@@ -2,14 +2,16 @@ import "server-only";
 import connectToMongo from "@/lib/db/connect";
 import {
   aggregateDomain,
+  buildLatencyHistory,
   DEFAULT_STALE_AFTER_MS,
   HISTORY_DAYS,
   type RawCheck,
 } from "@/lib/statusAggregate";
-import type { DomainView } from "@/lib/types";
+import type { DomainView, LatencyHistory } from "@/lib/types";
 
 export interface DashboardData {
   domains: DomainView[];
+  latency: LatencyHistory;
   overall: {
     totalCount: number;
     upCount: number;
@@ -38,12 +40,16 @@ export async function getDashboardData(): Promise<DashboardData> {
   const since = new Date(now.getTime() - HISTORY_DAYS * 24 * 60 * 60 * 1000);
   const options = { now, staleAfterMs: staleAfterMs(), days: HISTORY_DAYS };
 
+  const checksByDomain: { id: string; name: string; checks: RawCheck[] }[] = [];
+
   const domainViews: DomainView[] = await Promise.all(
-    domains.map(async (domain) => {
+    domains.map(async (domain, i) => {
       const checks = (await StatusCheck.find({ domain: domain._id, checkedAt: { $gte: since } })
         .sort({ checkedAt: -1 })
         .lean()) as unknown as RawCheck[];
 
+      // By index, not push: queries finish in any order, and ties in the chart list should stay stable.
+      checksByDomain[i] = { id: domain._id.toString(), name: domain.name, checks };
       const aggregate = aggregateDomain(checks, options);
 
       return {
@@ -83,6 +89,7 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   return {
     domains: domainViews,
+    latency: buildLatencyHistory(checksByDomain, now),
     overall: {
       totalCount: domainViews.length,
       upCount,

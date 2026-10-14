@@ -21,6 +21,13 @@
   --status-warning: #fab219;
   --status-serious: #ec835a;
   --status-critical: #d03b3b;
+
+  /* Latency panel: soft SaaS card in light mode */
+  --panel-bg: #ffffff;
+  --panel-radius: 16px;
+  --panel-tip-radius: 10px;
+  --panel-pattern: none;
+  --panel-shadow: 0 1px 2px rgba(11, 11, 11, 0.04), 0 8px 24px -12px rgba(11, 11, 11, 0.08);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -40,6 +47,13 @@
     --accent: #3987e5;
     --accent-soft: #184f95;
     --accent-fill: #0d366b;
+
+    /* Latency panel: hard edges and a dot grid in dark mode */
+    --panel-bg: #111110;
+    --panel-radius: 2px;
+    --panel-tip-radius: 1px;
+    --panel-pattern: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    --panel-shadow: none;
   }
 }
 
@@ -59,6 +73,12 @@
   --accent: #3987e5;
   --accent-soft: #184f95;
   --accent-fill: #0d366b;
+
+  --panel-bg: #111110;
+  --panel-radius: 2px;
+  --panel-tip-radius: 1px;
+  --panel-pattern: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  --panel-shadow: none;
 }
 
 @theme inline {
@@ -89,4 +109,16 @@ body {
   background: var(--page);
   color: var(--ink);
   font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.latency-panel {
+  background-color: var(--panel-bg);
+  background-image: var(--panel-pattern);
+  background-size: 14px 14px;
+  border-radius: var(--panel-radius);
+  box-shadow: var(--panel-shadow);
+}
+
+.latency-tip {
+  border-radius: var(--panel-tip-radius);
 }

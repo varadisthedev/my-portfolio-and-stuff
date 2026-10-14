@@ -20,6 +20,39 @@ export interface DayBucketView {
   segments: UptimeSegmentView[];
 }
 
+export type LatencyRange = "24h" | "7d" | "30d";
+
+export interface LatencyBucket {
+  /** Bucket start, epoch ms. */
+  start: number;
+  end: number;
+  /** Over successful checks only; null when none landed in the bucket. */
+  avgMs: number | null;
+  minMs: number | null;
+  maxMs: number | null;
+  checks: number;
+  failures: number;
+}
+
+export interface ServiceLatency {
+  id: string;
+  name: string;
+  avgMs: number | null;
+}
+
+export interface LatencyRangeView {
+  buckets: LatencyBucket[];
+  avgMs: number | null;
+  p95Ms: number | null;
+  peakMs: number | null;
+  checks: number;
+  failures: number;
+  /** Slowest first; services without data last. */
+  services: ServiceLatency[];
+}
+
+export type LatencyHistory = Record<LatencyRange, LatencyRangeView>;
+
 export interface DomainView {
   id: string;
   name: string;
