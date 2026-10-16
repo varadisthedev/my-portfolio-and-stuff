@@ -26,7 +26,7 @@ export const topProjects: Project[] = [
     id: "gitarchy",
     title: "GitArchy",
     description:
-      "A self-hosted, GitHub-style code host where analytics is part of the platform instead of a third-party integration. Repos, branches, diffs, member roles and activity feeds sit one step from distributed Spark jobs over the same git history — commit activity, Spark SQL file stats, K-Means repo clustering, a bug-fix commit classifier — streaming live progress back over a WebSocket.",
+      "A self-hosted, GitHub-style code host where analytics is part of the platform, not a third-party integration. Repos, branches, diffs and roles sit one step from distributed Spark jobs over the same git history — commit activity, file stats, K-Means repo clustering, a bug-fix classifier — streaming live progress over a WebSocket.",
     tags: ["Next.js", "FastAPI", "Apache Spark", "Cassandra", "WebSockets", "JWT"],
     repoHref: "https://github.com/varadisthedev/GitArchy",
     liveHref: "https://gitarchy.varadraut.dev",
@@ -41,7 +41,7 @@ export const topProjects: Project[] = [
     id: "tripzy",
     title: "Tripzy",
     description:
-      "AI travel planning that commits to a number. A LightGBM model trained on 1.67M Indian domestic flights picks the cheapest day to fly inside a 30-day window, while Gemini (NVIDIA fallback behind circuit breakers) writes the itinerary. One dashboard ties itineraries, bookings, fare history and weather together; the ML service stays internal and never reaches the browser.",
+      "AI travel planning that commits to a number. A LightGBM model trained on 1.67M Indian domestic flights picks the cheapest day to fly inside a 30-day window, while Gemini — NVIDIA fallback behind circuit breakers — writes the itinerary. One dashboard ties itineraries, bookings, fare history and weather together.",
     tags: ["React 19", "Express 5", "FastAPI", "LightGBM", "Neon Postgres", "Gemini"],
     repoHref: "https://github.com/varadisthedev/Tripzy",
     liveHref: "https://mytripzy.vercel.app",
@@ -59,7 +59,7 @@ export const topProjects: Project[] = [
     id: "kaarigar",
     title: "Kaarigar",
     description:
-      "Voice-first market linkage for Indian artisans. An artisan photographs a product and describes it out loud in Hindi, English or Marathi; Sarvam AI, Gemini and a scikit-learn pricing model turn that into a bilingual, SEO-ready listing with a price band that goes live on an IndiaMART-style marketplace after human review. Web and Expo apps share the flows, and every third-party key has a documented fallback.",
+      "Voice-first market linkage for Indian artisans. Photograph a product, describe it out loud in Hindi, English or Marathi, and Sarvam AI, Gemini and a scikit-learn pricing model turn that into a bilingual, SEO-ready listing with a price band — live on an IndiaMART-style marketplace after human review. Web and Expo apps share the flows.",
     tags: ["Next.js 16", "Expo", "FastAPI", "Neon Postgres", "Sarvam AI", "Razorpay"],
     repoHref: "https://github.com/varadisthedev/Kaarigar",
     liveHref: "https://kaarigar.varadraut.dev",
@@ -75,7 +75,7 @@ export const topProjects: Project[] = [
     id: "dupelocatr",
     title: "DupeLocatR",
     description:
-      "One simple job: hunt down and erase every duplicate document, image, audio file, video or PDF in a folder tree. Menu-driven, launches with `dlr` from any terminal, and far lighter on memory than dragging File Explorer through the same job. No runtime to install — it ships over Scoop and GitHub Releases, with a winget manifest in review.",
+      "One simple job: hunt down and erase every duplicate document, image, audio file, video or PDF in a folder tree. Menu-driven, launches with `dlr` from any terminal, and far lighter on memory than dragging File Explorer through the same job. Ships over Scoop and GitHub Releases, with a winget manifest in review.",
     tags: ["PowerShell", "Windows", "Scoop", "winget"],
     repoHref: "https://github.com/varadisthedev/DupeLocatR",
     liveHref: "https://github.com/varadisthedev/DupeLocatR/releases/latest",
