@@ -1,6 +1,3 @@
-import github from "../logos/light/github.png";
-import linkedin from "../logos/light/linkedin.png";
-
 export const site = {
   name: "VARAD_",
   title: "Varad Raut — Full-Stack Engineer",
@@ -34,11 +31,11 @@ export const contactContent = {
   terminal: {
     path: "~/socials",
     links: [
-      { label: "GitHub", href: "https://github.com/varadisthedev", icon: github },
+      { label: "GitHub", href: "https://github.com/varadisthedev", icon: "/logos/github.png" },
       {
         label: "LinkedIn",
         href: "https://www.linkedin.com/in/varad-raut-",
-        icon: linkedin,
+        icon: "/logos/linkedin.png",
       },
     ],
   },
