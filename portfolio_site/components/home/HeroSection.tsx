@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/button";
-import { PixelCat } from "@/components/ui/PixelCat";
 import { heroContent, site } from "@/lib/site";
 
 export function HeroSection() {

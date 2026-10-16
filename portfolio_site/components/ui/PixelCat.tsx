@@ -49,16 +49,6 @@ const HAPPY_EYES: Array<[row: number, col: number]> = [
 // Single pixel, centered under the eyes — as minimal as a nose can get.
 const NOSE: Array<[row: number, col: number]> = [[4, 6]];
 
-// Two short strokes per cheek, level with the nose/mouth rather than the
-// eyes, just outside the outline so they read as whiskers instead of
-// floating off on their own.
-const WHISKERS: Array<[row: number, col: number]> = [
-  [4, -1], [4, -2],
-  [5, -1], [5, -2],
-  [4, 13], [4, 14],
-  [5, 13], [5, 14],
-];
-
 function buildOutlineCells(cells: Array<[number, number]>) {
   const occupied = new Set(cells.map(([r, c]) => `${r},${c}`));
   const outline = new Set<string>();
